@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smoney - Quản lý tài chính Kute</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Quicksand:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+    <!-- Authentication Screen -->
+    <div id="auth-screen" class="auth-screen hidden">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo-area">
+                    <img src="assets/images/lg.png" alt="WinChat Logo" class="win-logo">
+                    <div class="win-title-group">
+                    </div>
+                </div>
+                <p id="auth-brand">
+                    <span class="color-orig">S</span><span class="color-light">m</span><span
+                        class="color-dark">on</span><span class="color-orig">e</span><span class="color-light">y</span>
+                </p>
+            </div>
+
+            <div id="login-form" class="auth-form">
+                <div class="win-input-group">
+                    <input type="text" id="login-email" placeholder=" ">
+                    <label>Username</label>
+                </div>
+                <div class="win-input-group">
+                    <input type="password" id="login-password" placeholder=" ">
+                    <label>Password</label>
+                </div>
+                <button id="login-btn" class="win-primary-btn">Đăng nhập</button>
+                <div style="display: flex; align-items: center; margin: 15px 0; color: #ccc;">
+                    <hr style="flex: 1; border: none; border-top: 1px solid #f0f0f0;">
+                    <span style="margin: 0 10px; font-size: 12px;">hoặc</span>
+                    <hr style="flex: 1; border: none; border-top: 1px solid #f0f0f0;">
+                </div>
+                <button id="google-login-btn" class="win-google-btn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                        style="width: 18px; margin-right: 10px;">
+                    Đăng nhập bằng Google
+                </button>
+                <div class="auth-links">
+                    <span id="show-register">Đăng ký ngay</span>
+                    <span class="divider">|</span>
+                    <span id="show-forgot">Quên mật khẩu?</span>
+                </div>
+            </div>
+
+            <div id="forgot-password-form" class="auth-form hidden">
+                <div class="win-input-group">
+                    <input type="text" id="forgot-email" placeholder=" ">
+                    <label>Username & Email</label>
+                </div>
+                <button id="forgot-btn" class="win-primary-btn">Khôi phục mật khẩu</button>
+                <p class="auth-switch"><span id="back-to-login">Quay lại đăng nhập</span></p>
+            </div>
+
+            <div id="register-form" class="auth-form hidden">
+                <div class="win-input-group">
+                    <input type="text" id="reg-name" placeholder=" ">
+                    <label>Tên hiển thị</label>
+                </div>
+                <div class="win-input-group">
+                    <input type="email" id="reg-email" placeholder=" ">
+                    <label>Email (nhận OTP)</label>
+                </div>
+                <div class="win-input-row" style="display: flex; gap: 15px;">
+                    <div class="win-input-group" style="flex: 1.5;">
+                        <input type="text" id="reg-id" placeholder=" ">
+                        <label>Username</label>
+                    </div>
+                    <div class="win-input-group" style="flex: 1;">
+                        <div class="win-gender-toggle" id="gender-toggle-container">
+                            <div class="gender-option active" data-value="male">Nam</div>
+                            <div class="gender-option" data-value="female">Nữ</div>
+                            <input type="hidden" id="reg-gender" value="male">
+                        </div>
+                    </div>
+                </div>
+                <div class="win-input-group">
+                    <input type="password" id="reg-password" placeholder=" ">
+                    <label>Password</label>
+                </div>
+                <div id="otp-group" class="win-input-group hidden">
+                    <input type="text" id="reg-otp" placeholder=" ">
+                    <label>Nhập mã OTP (6 số)</label>
+                </div>
+                <button id="register-btn" class="win-primary-btn">Tiếp tục (Nhận OTP)</button>
+                <button id="verify-otp-btn" class="win-primary-btn hidden">Xác nhận Đăng ký</button>
+                <p id="otp-back" class="auth-switch hidden" style="margin-top: 10px;"><span style="cursor:pointer; color: var(--primary);">Quay lại sửa thông tin</span></p>
+                <p class="auth-switch">Đã có tài khoản? <span id="show-login">Đăng nhập</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Lock Screen -->
+    <div id="lock-screen" class="lock-screen hidden">
+        <div class="lock-content">
+            <h2 id="lock-title">Nhập mã PIN</h2>
+            <p id="lock-subtitle" style="color: var(--text-light); margin-bottom: 30px;">Bảo vệ Heo Con của bạn</p>
+
+            <!-- Lock PIN Area -->
+            <div id="lock-pin-area" class="hidden">
+                <div class="pin-display">
+                    <div class="pin-dot lock-pin-dot"></div>
+                    <div class="pin-dot lock-pin-dot"></div>
+                    <div class="pin-dot lock-pin-dot"></div>
+                    <div class="pin-dot lock-pin-dot"></div>
+                </div>
+                <div class="pin-keypad">
+                    <button class="key lock-key">1</button><button class="key lock-key">2</button><button
+                        class="key lock-key">3</button>
+                    <button class="key lock-key">4</button><button class="key lock-key">5</button><button
+                        class="key lock-key">6</button>
+                    <button class="key lock-key">7</button><button class="key lock-key">8</button><button
+                        class="key lock-key">9</button>
+                    <button class="key"></button><button class="key lock-key">0</button><button
+                        class="key-del lock-key-del"><i data-lucide="delete"></i></button>
+                </div>
+            </div>
+
+            <!-- Lock Pattern Area -->
+            <div id="lock-pattern-area" class="hidden">
+                <div class="pattern-container"
+                    style="position: relative; width: 240px; height: 240px; margin: 20px auto;">
+                    <canvas id="lock-pattern-canvas" width="240" height="240"
+                        style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 5;"></canvas>
+                    <div class="pattern-grid" id="lock-pattern-grid"
+                        style="width: 100%; height: 100%; position: relative; z-index: 10;">
+                        <div class="dot lock-dot" data-index="0"></div>
+                        <div class="dot lock-dot" data-index="1"></div>
+                        <div class="dot lock-dot" data-index="2"></div>
+                        <div class="dot lock-dot" data-index="3"></div>
+                        <div class="dot lock-dot" data-index="4"></div>
+                        <div class="dot lock-dot" data-index="5"></div>
+                        <div class="dot lock-dot" data-index="6"></div>
+                        <div class="dot lock-dot" data-index="7"></div>
+                        <div class="dot lock-dot" data-index="8"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biometric Option -->
+            <div id="lock-biometric-area" class="hidden" style="margin-top: 30px;">
+                <button id="lock-biometric-btn"
+                    style="background: white; border: none; padding: 15px; border-radius: 50%; box-shadow: var(--shadow); color: var(--primary); cursor: pointer;">
+                    <i data-lucide="fingerprint" style="width: 30px; height: 30px;"></i>
+                </button>
+                <p style="font-size: 12px; color: var(--text-light); margin-top: 8px;">Nhấn để quét</p>
+            </div>
+
+            <p id="lock-error" class="hidden error-shake"
+                style="color: #ff4d4d; font-size: 14px; margin-top: 20px; font-weight: 600;">Mã khóa không đúng!</p>
+            <button id="lock-cancel-btn" class="hidden"
+                style="margin-top: 20px; padding: 10px 20px; border: none; background: transparent; color: var(--text-main); font-weight: bold; cursor: pointer; text-decoration: underline;">Hủy
+                bỏ</button>
+        </div>
+    </div>
+
+    <!-- Image Overlay Modal -->
+    <div id="image-overlay" class="image-overlay hidden" onclick="hideFullImage()">
+        <img id="overlay-img" src="" alt="Full size">
+    </div>
+
+    <div id="app" class="app-container">
+        <!-- Main Content Area -->
+        <main id="main-content" class="fade-in">
+            <!-- Content will be injected here by app.js -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-tab="home" id="nav-home">
+                <i data-lucide="home"></i>
+                <span>Nhà</span>
+            </button>
+            <button class="nav-item" data-tab="transaction" id="nav-transaction">
+                <i data-lucide="plus-circle"></i>
+                <span>Thu Chi</span>
+            </button>
+            <button class="nav-item" data-tab="stats" id="nav-stats">
+                <i data-lucide="pie-chart"></i>
+                <span>Thống Kê</span>
+            </button>
+            <button class="nav-item" data-tab="goals" id="nav-goals">
+                <i data-lucide="target"></i>
+                <span>Mục Tiêu</span>
+            </button>
+            <button class="nav-item" data-tab="settings" id="nav-settings">
+                <i data-lucide="settings"></i>
+                <span>Cài Đặt</span>
+            </button>
+        </nav>
+
+        <!-- Modal for Add Transaction -->
+        <div id="transaction-modal" class="modal hidden">
+            <div class="modal-content slide-up">
+                <div class="modal-header">
+                    <h3 id="modal-title">Bao nhiêu tiền dạ chồng?</h3>
+                    <button class="close-btn" id="close-modal"><i data-lucide="x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div id="step-1">
+                        <div class="input-group">
+                            <input type="text" id="amount-input" placeholder="0" inputmode="numeric" autofocus>
+                        </div>
+
+                        <div class="method-selector">
+                            <div class="method-options">
+                                <button class="method-btn active" data-method="cash">
+                                    <i data-lucide="banknote"></i>
+                                    <span>Tiền mặt</span>
+                                </button>
+                                <button class="method-btn" data-method="bank">
+                                    <i data-lucide="credit-card"></i>
+                                    <span>Tài khoản</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="step-2" class="hidden">
+                        <div class="input-group">
+                            <input type="text" id="note-input" placeholder="Ghi chú (Ví dụ: Ăn kem...)"
+                                style="font-size: 14px;">
+                        </div>
+                        <div id="note-warning" class="hidden"
+                            style="color: #ff4d4d; font-size: 12px; text-align: center; margin-top: -5px; margin-bottom: 10px; font-weight: 600;">
+                            Bạn chắc không nhập lí do?</div>
+                        <div class="photo-actions">
+                            <input type="file" id="photo-input" accept="image/*" class="hidden">
+                            <button class="action-btn photo-btn" id="take-photo" type="button">
+                                <i data-lucide="camera"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="next-btn" class="primary-btn">Tiếp theo</button>
+                        <button id="save-btn" class="primary-btn hidden">Ok</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Security Modal (PIN/Pattern) -->
+        <div id="security-modal" class="modal hidden">
+            <div class="modal-content security-entry slide-up">
+                <div class="modal-header">
+                    <h3 id="security-modal-title">Thiết lập mã khóa</h3>
+                    <button class="close-btn" id="close-security-modal"><i data-lucide="x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div id="pin-setup" class="hidden">
+                        <div class="pin-display">
+                            <div class="pin-dot"></div>
+                            <div class="pin-dot"></div>
+                            <div class="pin-dot"></div>
+                            <div class="pin-dot"></div>
+                        </div>
+                        <div class="pin-keypad">
+                            <button class="key">1</button><button class="key">2</button><button class="key">3</button>
+                            <button class="key">4</button><button class="key">5</button><button class="key">6</button>
+                            <button class="key">7</button><button class="key">8</button><button class="key">9</button>
+                            <button class="key"></button><button class="key">0</button><button class="key-del"><i
+                                    data-lucide="delete"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="pattern-setup" class="hidden">
+                        <div class="pattern-container"
+                            style="position: relative; width: 240px; height: 240px; margin: 20px auto;">
+                            <canvas id="pattern-canvas" width="240" height="240"
+                                style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 5;"></canvas>
+                            <div class="pattern-grid" id="pattern-grid"
+                                style="width: 100%; height: 100%; position: relative; z-index: 10;">
+                                <div class="dot" data-index="0"></div>
+                                <div class="dot" data-index="1"></div>
+                                <div class="dot" data-index="2"></div>
+                                <div class="dot" data-index="3"></div>
+                                <div class="dot" data-index="4"></div>
+                                <div class="dot" data-index="5"></div>
+                                <div class="dot" data-index="6"></div>
+                                <div class="dot" data-index="7"></div>
+                                <div class="dot" data-index="8"></div>
+                            </div>
+                        </div>
+                        <p style="text-align: center; color: var(--text-light); font-size: 12px; margin-top: 15px;">Vẽ
+                            ít nhất 4 điểm để kết nối</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="security-save-btn" class="primary-btn">Lưu mã khóa</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Confirm Modal -->
+        <div id="confirm-modal" class="modal hidden">
+            <div class="modal-content"
+                style="background: white; border-radius: 30px; padding: 30px; width: 90%; max-width: 340px; text-align: center; height: auto !important; justify-content: center !important;">
+                <div
+                    style="background: #fff0f5; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #ff8fb1;">
+                    <i data-lucide="log-out" style="width: 30px; height: 30px;"></i>
+                </div>
+                <h3 style="font-family: 'Lexend', sans-serif; font-weight: 700; color: #4a4a4a; margin-bottom: 10px;">
+                    Đăng xuất?</h3>
+                <p style="color: #999; font-size: 14px; margin-bottom: 25px;">Bạn có chắc chắn muốn thoát khỏi Smoney
+                    không?</p>
+                <div style="display: flex; gap: 12px;">
+                    <button id="confirm-cancel"
+                        style="flex: 1; padding: 12px; border-radius: 15px; border: none; background: #f5f5f5; color: #666; font-weight: 700; cursor: pointer;">Hủy</button>
+                    <button id="confirm-ok"
+                        style="flex: 1; padding: 12px; border-radius: 15px; border: none; background: #ff8fb1; color: white; font-weight: 700; cursor: pointer;">Đăng
+                        xuất</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
