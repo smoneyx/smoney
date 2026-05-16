@@ -21,6 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
     initApp();
+
+    // Mở khóa âm thanh khi người dùng chạm vào màn hình lần đầu
+    const unlockAudio = () => {
+        const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+        silentAudio.play().then(() => {
+            console.log("System: Audio Unlocked");
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        }).catch(() => {});
+    };
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
 });
 
 // State Management
@@ -70,17 +82,15 @@ const state = {
         };
     },
     playSound(src) {
-        if (this.settings.soundEnabled) {
-            const audio = new Audio(src);
-            audio.play().catch(e => {
-                if (e.name === 'NotAllowedError') {
-                    // Thường do trình duyệt chặn tự động phát trước khi user tương tác
-                    console.log("Audio play blocked (user interaction required)");
-                } else {
-                    console.log("Audio play error:", e);
-                }
-            });
-        }
+        if (!this.settings.soundEnabled) return;
+        
+        const audio = new Audio(src);
+        audio.play().catch(e => {
+            // Chỉ log lỗi nếu không phải là lỗi do chính sách Autoplay của trình duyệt
+            if (e.name !== 'NotAllowedError') {
+                console.warn("Audio play error:", e);
+            }
+        });
     }
 };
 
