@@ -756,16 +756,14 @@ header h2 {
     font-family: 'KoniBlack', sans-serif;
 }
 
-.input-group input {
+#amount-input {
     width: 100%;
     padding: 12px;
     border-radius: 20px;
     border: 2px solid var(--primary);
     background: white;
     font-family: 'KoniBlack', sans-serif;
-    /* Dùng font Koni cho số luôn cho đẹp */
     font-size: 32px;
-    /* Phóng to số */
     font-weight: 700;
     color: #5d5d5d;
     outline: none;
@@ -890,21 +888,34 @@ header h1 {
     /* Ép tạo khoảng cách với phần chọn nguồn tiền */
 }
 
-.input-group input {
+#note-input {
     width: 100%;
     padding: 16px;
     border-radius: 18px;
-    border: 2px solid var(--bg-color);
-    background: var(--bg-color);
-    font-family: inherit;
-    font-size: 18px;
+    border: none;
+    background: url('assets/images/khungnhap2.png') no-repeat center !important;
+    background-size: cover !important;
+    font-family: 'KoniBlack', sans-serif;
+    font-size: 20px;
     font-weight: 700;
     color: var(--primary);
     outline: none;
     transition: all 0.3s;
+    text-align: center;
 }
 
-.input-group input:focus {
+#note-input::placeholder {
+    color: color-mix(in srgb, var(--primary) 50%, transparent);
+    font-size: 16px;
+}
+
+#note-input:focus {
+    background: url('assets/images/khungnhap2.png') no-repeat center !important;
+    background-size: cover !important;
+    border: none !important;
+}
+
+#amount-input:focus {
     border-color: var(--primary);
     background: white;
 }
