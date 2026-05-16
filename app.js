@@ -178,6 +178,13 @@ function applyThemeColor(color) {
 }
 
 function applyTheme() {
+    // Ensure theme structure is valid (migration for old data)
+    if (!state.theme.tabs) {
+        state.theme.tabs = { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' };
+    }
+    if (!state.theme.mode) state.theme.mode = 'global';
+    if (!state.theme.global) state.theme.global = '#fff9fb';
+
     let color = state.theme.global;
     if (state.theme.mode === 'per-tab') {
         const tabToColor = ['home', 'transaction', 'stats', 'settings'].includes(state.currentTab) ? state.currentTab : 'home';
@@ -739,6 +746,7 @@ function setupEventListeners() {
         }
 
         // Biometric toggle
+        const biometricToggle = e.target.closest('#biometric-toggle');
         if (biometricToggle) {
             if (!state.security.enabled) return;
 
@@ -2423,7 +2431,8 @@ function renderThemeSettings(container) {
     const tabSelect = document.getElementById('theme-tab-select');
 
     let currentSelectedTab = tabSelect ? tabSelect.value : 'home';
-    let selectedColor = state.theme.mode === 'global' ? state.theme.global : state.theme.tabs[currentSelectedTab];
+    if (!state.theme.tabs) state.theme.tabs = { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' };
+    let selectedColor = state.theme.mode === 'global' ? state.theme.global : (state.theme.tabs[currentSelectedTab] || state.theme.global);
 
     function updateActivePreset() {
         presets.forEach(p => {
