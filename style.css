@@ -745,7 +745,7 @@ header h2 {
 }
 
 .modal-content.step-2-active::before {
-    background: url('assets/images/khungnhap2.png') no-repeat center !important;
+    background: url('assets/images/khungnhap.jpg') no-repeat center !important;
     background-size: 100% 100% !important;
 }
 
@@ -894,11 +894,11 @@ header h1 {
     border-radius: 18px;
     border: none;
     background: url('assets/images/khungnhap2.png') no-repeat center !important;
-    background-size: cover !important;
+    background-size: 100% 100% !important;
     font-family: 'KoniBlack', sans-serif;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    color: var(--primary);
+    color: #8b5e3c; /* Màu chữ nâu cho hợp với thanh vàng */
     outline: none;
     transition: all 0.3s;
     text-align: center;
@@ -911,7 +911,7 @@ header h1 {
 
 #note-input:focus {
     background: url('assets/images/khungnhap2.png') no-repeat center !important;
-    background-size: cover !important;
+    background-size: 100% 100% !important;
     border: none !important;
 }
 
