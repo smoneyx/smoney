@@ -72,7 +72,14 @@ const state = {
     playSound(src) {
         if (this.settings.soundEnabled) {
             const audio = new Audio(src);
-            audio.play().catch(e => console.log("Audio play error:", e));
+            audio.play().catch(e => {
+                if (e.name === 'NotAllowedError') {
+                    // Thường do trình duyệt chặn tự động phát trước khi user tương tác
+                    console.log("Audio play blocked (user interaction required)");
+                } else {
+                    console.log("Audio play error:", e);
+                }
+            });
         }
     }
 };
@@ -836,7 +843,7 @@ function switchTab(tab) {
 
     renderTab(tab);
     applyTheme();
-    state.playSound('assets/sounds/pop.mp3');
+    // state.playSound('assets/sounds/pop.mp3'); // File này hiện không tồn tại
 }
 
 function renderTab(tab) {
