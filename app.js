@@ -639,7 +639,7 @@ function setupEventListeners() {
         title.innerHTML = ''; // Xóa chữ tiêu đề ở trang 2
         title.classList.remove('wavy-text');
 
-        const modalContent = document.querySelector('.modal-content');
+        const modalContent = document.querySelector('#transaction-modal .modal-content');
         modalContent.classList.add('step-2-active'); // Xóa khung mây, đổi sang bản mới
 
         // Cập nhật Placeholder thông minh cho Ghi chú
@@ -2021,7 +2021,7 @@ function resetTransactionForm() {
     document.getElementById('note-input').value = '';
 
     // Đưa về bước 1
-    const modalContent = document.querySelector('.modal-content');
+    const modalContent = document.querySelector('#transaction-modal .modal-content');
     modalContent.classList.remove('step-2-active'); // Trở lại khung mây gốc
 
     document.getElementById('step-1').classList.remove('hidden');

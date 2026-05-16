@@ -709,7 +709,7 @@ header h2 {
     width: 100%;
     max-width: 420px;
     height: 440px;
-    padding: 45px 75px 130px 75px;
+    padding: 85px 75px 85px 75px;
     /* Đẩy chữ lên sát viền mây hơn nữa */
     animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
@@ -718,7 +718,8 @@ header h2 {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: center;
+    gap: 20px;
 }
 
 .modal-content::before {
@@ -737,12 +738,12 @@ header h2 {
 /* Giao diện Bước 2 dùng khung hình mới khungnhap2.png */
 .modal-content.step-2-active {
     background: url('assets/images/khungnhap2.png?v=2') no-repeat center !important;
-    background-size: 100% 100% !important;
+    background-size: contain !important;
     border: none !important;
     box-shadow: none !important;
     max-width: 450px !important;
     height: 440px !important;
-    padding: 45px 75px 130px 75px !important;
+    padding: 85px 75px 85px 75px !important;
 }
 
 .modal-content.step-2-active::before {
@@ -862,7 +863,23 @@ header h1 {
 
 .method-btn span {
     font-size: 10px;
-    /* Thu nhỏ chữ hơn nữa */
+}
+
+/* Ẩn chữ ở nút nguồn tiền trên App (Mobile), giữ lại trên Web */
+@media (max-width: 768px) {
+    .method-btn span {
+        display: none;
+    }
+    
+    .method-btn {
+        padding: 10px 4px !important;
+        justify-content: center;
+    }
+    
+    .method-btn i {
+        width: 22px;
+        height: 22px;
+    }
 }
 
 .method-btn.active {
