@@ -6,7 +6,7 @@ function decodeJwt(token) {
     try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
         return JSON.parse(jsonPayload);
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("System: Audio Unlocked");
             document.removeEventListener('click', unlockAudio);
             document.removeEventListener('touchstart', unlockAudio);
-        }).catch(() => {});
+        }).catch(() => { });
     };
     document.addEventListener('click', unlockAudio);
     document.addEventListener('touchstart', unlockAudio);
@@ -83,7 +83,7 @@ const state = {
     },
     playSound(src) {
         if (!this.settings.soundEnabled) return;
-        
+
         const audio = new Audio(src);
         audio.play().catch(e => {
             // Chỉ log lỗi nếu không phải là lỗi do chính sách Autoplay của trình duyệt
@@ -2540,7 +2540,7 @@ function setupAuthListeners() {
     const showLogin = document.getElementById('show-login');
     const showForgot = document.getElementById('show-forgot');
     const backToLogin = document.getElementById('back-to-login');
-    
+
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const forgotForm = document.getElementById('forgot-password-form');
@@ -2642,25 +2642,25 @@ async function handleLogin() {
     }
 
     showToast("Đang xác thực...");
-    
+
     // Hash password for security
     const passwordHash = await hashPassword(password);
-    
+
     const result = await ApiService.call('login', { email, password_hash: passwordHash });
-    
+
     if (result.success) {
         state.user.loggedIn = true;
         state.user.email = result.user.email;
         state.user.name = result.user.name;
         state.user.gender = result.user.gender;
-        
+
         ApiService.saveLocal();
         localStorage.setItem('smoney_logged_in', 'true');
-        
+
         hideAuthScreen();
         unlockApp();
         showToast("Chào mừng quay trở lại, " + state.user.name + "!");
-        
+
         // Initial sync
         ApiService.syncFromCloud();
     } else {
@@ -2692,25 +2692,25 @@ async function handleRegister() {
         return;
     }
     showToast("Đang gửi mã OTP...");
-    
+
     // Gọi API để gửi OTP
     const result = await ApiService.call('sendOTP', { email });
-    
+
     if (result.success) {
         showToast("Mã OTP đã được gửi đến " + email);
-        
+
         // Hiển thị phần nhập OTP
         document.getElementById('otp-group').classList.remove('hidden');
         document.getElementById('verify-otp-btn').classList.remove('hidden');
         document.getElementById('otp-back').classList.remove('hidden');
         document.getElementById('register-btn').classList.add('hidden');
-        
+
         // Khóa các trường thông tin lại để tránh thay đổi
-    document.getElementById('reg-name').disabled = true;
-    document.getElementById('reg-email').disabled = true;
-    document.getElementById('reg-id').disabled = true;
-    document.getElementById('reg-password').disabled = true;
-        
+        document.getElementById('reg-name').disabled = true;
+        document.getElementById('reg-email').disabled = true;
+        document.getElementById('reg-id').disabled = true;
+        document.getElementById('reg-password').disabled = true;
+
         document.getElementById('reg-otp').focus();
     } else {
         showToast(result.error || "Gửi OTP thất bại! Vui lòng thử lại.");
@@ -2731,18 +2731,18 @@ async function handleVerifyOTP() {
     }
 
     showToast("Đang xác thực...");
-    
+
     const passwordHash = await hashPassword(password);
-    
-    const result = await ApiService.call('register', { 
-        email, 
+
+    const result = await ApiService.call('register', {
+        email,
         username,
-        password_hash: passwordHash, 
+        password_hash: passwordHash,
         full_name: name,
         gender: gender,
         otp: otp // Gửi mã OTP lên để server xác thực
     });
-    
+
     if (result.success) {
         showToast("Đăng ký thành công! Chào mừng " + name);
         // Reset form và quay về đăng nhập
@@ -2754,13 +2754,13 @@ async function handleVerifyOTP() {
             document.getElementById('reg-id').value = '';
             document.getElementById('reg-password').value = '';
             document.getElementById('reg-otp').value = '';
-            
+
             // Unlock fields
             document.getElementById('reg-name').disabled = false;
             document.getElementById('reg-email').disabled = false;
             document.getElementById('reg-id').disabled = false;
             document.getElementById('reg-password').disabled = false;
-            
+
             // Hide OTP fields
             document.getElementById('otp-group').classList.add('hidden');
             document.getElementById('verify-otp-btn').classList.add('hidden');
@@ -2776,7 +2776,7 @@ function showConfirmModal() {
     const modal = document.getElementById('confirm-modal');
     if (!modal) return;
     modal.classList.remove('hidden');
-    
+
     document.getElementById('confirm-cancel').onclick = () => modal.classList.add('hidden');
     document.getElementById('confirm-ok').onclick = () => {
         modal.classList.add('hidden');
@@ -2794,7 +2794,7 @@ window.logoutUser = logoutUser;
 
 // Make sure showToast exists or create a simple one
 if (typeof showToast === 'undefined') {
-    window.showToast = function(message) {
+    window.showToast = function (message) {
         // Check if toast element exists
         let toast = document.getElementById('app-toast');
         if (!toast) {
@@ -2846,7 +2846,7 @@ async function handleGoogleCredentialResponse(response) {
     }
 
     showToast("Đang đăng nhập: " + payload.email);
-    
+
     const result = await ApiService.call('googleLogin', {
         email: payload.email,
         name: payload.name,
@@ -2859,10 +2859,10 @@ async function handleGoogleCredentialResponse(response) {
         state.user.email = result.user.email;
         state.user.name = result.user.name;
         state.user.gender = result.user.gender || 'nam';
-        
+
         ApiService.saveLocal();
         localStorage.setItem('smoney_logged_in', 'true');
-        
+
         hideAuthScreen();
         unlockApp();
         showToast("Chào mừng " + state.user.name + "!");
