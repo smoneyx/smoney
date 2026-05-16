@@ -736,17 +736,17 @@ header h2 {
 
 /* Giao diện Bước 2 dùng khung hình mới khungnhap2.png */
 .modal-content.step-2-active {
-    background: transparent !important;
+    background: url('assets/images/khungnhap2.png?v=2') no-repeat center !important;
+    background-size: 100% 100% !important;
     border: none !important;
     box-shadow: none !important;
     max-width: 450px !important;
-    height: 440px !important; /* Đồng bộ chiều cao với bước 1 */
-    padding: 45px 75px 130px 75px !important; /* Đồng bộ padding với bước 1 */
+    height: 440px !important;
+    padding: 45px 75px 130px 75px !important;
 }
 
 .modal-content.step-2-active::before {
-    background: url('assets/images/khungnhap2.png') no-repeat center !important;
-    background-size: 100% 100% !important;
+    display: none !important;
 }
 
 .modal-content.step-2-active #modal-title {
