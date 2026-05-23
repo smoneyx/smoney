@@ -61,9 +61,23 @@
             <div id="forgot-password-form" class="auth-form hidden">
                 <div class="win-input-group">
                     <input type="text" id="forgot-email" placeholder=" ">
-                    <label>Username & Email</label>
+                    <label>Email của bạn</label>
                 </div>
-                <button id="forgot-btn" class="win-primary-btn">Khôi phục mật khẩu</button>
+                
+                <div id="forgot-otp-group" class="hidden">
+                    <div class="win-input-group">
+                        <input type="text" id="forgot-otp" placeholder=" ">
+                        <label>Nhập mã OTP (6 số)</label>
+                    </div>
+                    <div class="win-input-group">
+                        <input type="password" id="forgot-new-password" placeholder=" ">
+                        <label>Mật khẩu mới</label>
+                    </div>
+                </div>
+
+                <button id="forgot-btn" class="win-primary-btn">Tiếp tục (Nhận OTP)</button>
+                <button id="verify-forgot-btn" class="win-primary-btn hidden">Xác nhận đổi mật khẩu</button>
+                
                 <p class="auth-switch"><span id="back-to-login">Quay lại đăng nhập</span></p>
             </div>
 

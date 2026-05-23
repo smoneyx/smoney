@@ -2575,6 +2575,23 @@ function setupAuthListeners() {
             forgotForm.classList.add('hidden');
             registerForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
+            
+            // Reset forgot form
+            const forgotEmail = document.getElementById('forgot-email');
+            if (forgotEmail) {
+                forgotEmail.disabled = false;
+                forgotEmail.value = '';
+            }
+            const forgotOtpGroup = document.getElementById('forgot-otp-group');
+            if (forgotOtpGroup) forgotOtpGroup.classList.add('hidden');
+            const forgotBtn = document.getElementById('forgot-btn');
+            if (forgotBtn) forgotBtn.classList.remove('hidden');
+            const verifyForgotBtn = document.getElementById('verify-forgot-btn');
+            if (verifyForgotBtn) verifyForgotBtn.classList.add('hidden');
+            const forgotOtp = document.getElementById('forgot-otp');
+            if (forgotOtp) forgotOtp.value = '';
+            const forgotNewPassword = document.getElementById('forgot-new-password');
+            if (forgotNewPassword) forgotNewPassword.value = '';
         };
     }
 
@@ -2610,6 +2627,11 @@ function setupAuthListeners() {
     const forgotBtn = document.getElementById('forgot-btn');
     if (forgotBtn) {
         forgotBtn.onclick = handleForgotPassword;
+    }
+
+    const verifyForgotBtn = document.getElementById('verify-forgot-btn');
+    if (verifyForgotBtn) {
+        verifyForgotBtn.onclick = handleVerifyForgotPassword;
     }
 
     const googleBtn = document.getElementById('google-login-btn');
@@ -2671,13 +2693,54 @@ async function handleLogin() {
 async function handleForgotPassword() {
     const email = document.getElementById('forgot-email').value;
     if (!email) {
-        showToast("Vui lòng nhập Email hoặc ID!");
+        showToast("Vui lòng nhập Email!");
         return;
     }
-    showToast("Yêu cầu đã được gửi! Vui lòng kiểm tra email.");
-    setTimeout(() => {
-        document.getElementById('back-to-login').click();
-    }, 2000);
+    showToast("Đang gửi mã OTP...");
+    
+    const result = await ApiService.call('sendOTP', { email });
+    
+    if (result.success) {
+        showToast("Mã OTP đã được gửi đến " + email);
+        
+        document.getElementById('forgot-otp-group').classList.remove('hidden');
+        document.getElementById('forgot-btn').classList.add('hidden');
+        document.getElementById('verify-forgot-btn').classList.remove('hidden');
+        
+        document.getElementById('forgot-email').disabled = true;
+        document.getElementById('forgot-otp').focus();
+    } else {
+        showToast(result.error || "Gửi OTP thất bại! Vui lòng thử lại.");
+    }
+}
+
+async function handleVerifyForgotPassword() {
+    const email = document.getElementById('forgot-email').value;
+    const otp = document.getElementById('forgot-otp').value;
+    const newPassword = document.getElementById('forgot-new-password').value;
+    
+    if (!otp || !newPassword) {
+        showToast("Vui lòng nhập mã OTP và mật khẩu mới!");
+        return;
+    }
+    
+    showToast("Đang xác thực...");
+    const passwordHash = await hashPassword(newPassword);
+    
+    const result = await ApiService.call('resetPassword', {
+        email,
+        otp,
+        new_password_hash: passwordHash
+    });
+    
+    if (result.success) {
+        showToast("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+        setTimeout(() => {
+            document.getElementById('back-to-login').click();
+        }, 1500);
+    } else {
+        showToast(result.error || "Mã OTP không đúng hoặc đã hết hạn!");
+    }
 }
 
 async function handleRegister() {
