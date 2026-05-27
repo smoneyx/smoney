@@ -2575,7 +2575,7 @@ function setupAuthListeners() {
             forgotForm.classList.add('hidden');
             registerForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
-            
+
             // Reset forgot form
             const forgotEmail = document.getElementById('forgot-email');
             if (forgotEmail) {
@@ -2697,16 +2697,16 @@ async function handleForgotPassword() {
         return;
     }
     showToast("Đang gửi mã OTP...");
-    
+
     const result = await ApiService.call('sendOTP', { email });
-    
+
     if (result.success) {
         showToast("Mã OTP đã được gửi đến " + email);
-        
+
         document.getElementById('forgot-otp-group').classList.remove('hidden');
         document.getElementById('forgot-btn').classList.add('hidden');
         document.getElementById('verify-forgot-btn').classList.remove('hidden');
-        
+
         document.getElementById('forgot-email').disabled = true;
         document.getElementById('forgot-otp').focus();
     } else {
@@ -2718,21 +2718,21 @@ async function handleVerifyForgotPassword() {
     const email = document.getElementById('forgot-email').value;
     const otp = document.getElementById('forgot-otp').value;
     const newPassword = document.getElementById('forgot-new-password').value;
-    
+
     if (!otp || !newPassword) {
         showToast("Vui lòng nhập mã OTP và mật khẩu mới!");
         return;
     }
-    
+
     showToast("Đang xác thực...");
     const passwordHash = await hashPassword(newPassword);
-    
+
     const result = await ApiService.call('resetPassword', {
         email,
         otp,
         new_password_hash: passwordHash
     });
-    
+
     if (result.success) {
         showToast("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
         setTimeout(() => {
