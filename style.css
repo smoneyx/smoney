@@ -1887,6 +1887,10 @@ body.web-layout .kute-toast {
     left: calc(50% + 120px);
 }
 
+body.web-layout:has(#auth-screen:not(.hidden)) .kute-toast {
+    left: 50%;
+}
+
 /* ---------- Stats: Smaller cards on web ---------- */
 body.web-layout .stats-slider {
     display: flex;

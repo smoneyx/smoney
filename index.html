@@ -16,6 +16,11 @@
 </head>
 
 <body>
+    <script>
+        if (window.innerWidth > 768 && !navigator.userAgent.match(/Android|iPhone|iPad|iPod/i) && !window.matchMedia('(display-mode: standalone)').matches) {
+            document.body.classList.add('web-layout');
+        }
+    </script>
     <!-- Authentication Screen -->
     <div id="auth-screen" class="auth-screen hidden">
         <div class="auth-container">
