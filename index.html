@@ -16,11 +16,6 @@
 </head>
 
 <body>
-    <script>
-        if (window.innerWidth > 768 && !navigator.userAgent.match(/Android|iPhone|iPad|iPod/i) && !window.matchMedia('(display-mode: standalone)').matches) {
-            document.body.classList.add('web-layout');
-        }
-    </script>
     <!-- Authentication Screen -->
     <div id="auth-screen" class="auth-screen hidden">
         <div class="auth-container">
@@ -99,7 +94,6 @@
                     <div class="win-input-group" style="flex: 1.5;">
                         <input type="text" id="reg-id" placeholder=" ">
                         <label>Username</label>
-                        <div id="username-error" style="font-size: 11px; margin-top: -12px; margin-bottom: 12px; font-weight: 600; text-align: left; padding-left: 5px;"></div>
                     </div>
                     <div class="win-input-group" style="flex: 1;">
                         <div class="win-gender-toggle" id="gender-toggle-container">
@@ -321,27 +315,6 @@
                 </div>
                 <div class="modal-footer">
                     <button id="security-save-btn" class="primary-btn">Lưu mã khóa</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Custom Change Name Modal -->
-        <div id="change-name-modal" class="modal hidden">
-            <div class="modal-content"
-                style="background: white; border-radius: 30px; padding: 30px; width: 90%; max-width: 340px; text-align: center; height: auto !important; justify-content: center !important;">
-                <div
-                    style="background: var(--bg-color); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--primary);">
-                    <i data-lucide="edit-2" style="width: 30px; height: 30px;"></i>
-                </div>
-                <h3 style="font-family: 'Lexend', sans-serif; font-weight: 700; color: #4a4a4a; margin-bottom: 10px;">
-                    Đổi tên hiển thị</h3>
-                <p style="color: #999; font-size: 14px; margin-bottom: 25px;">Nhập tên mới mà bạn muốn thay đổi</p>
-                <input type="text" id="new-name-input" placeholder="Tên mới" style="width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #eee; margin-bottom: 25px; font-family: 'Outfit', sans-serif; font-size: 16px; text-align: center; background: #f9f9f9; outline: none;">
-                <div style="display: flex; gap: 12px;">
-                    <button id="change-name-cancel"
-                        style="flex: 1; padding: 12px; border-radius: 15px; border: none; background: #f5f5f5; color: #666; font-weight: 700; cursor: pointer;">Hủy</button>
-                    <button id="change-name-ok"
-                        style="flex: 1; padding: 12px; border-radius: 15px; border: none; background: var(--primary); color: var(--primary-text); font-weight: 700; cursor: pointer;">Lưu</button>
                 </div>
             </div>
         </div>

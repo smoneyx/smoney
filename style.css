@@ -244,6 +244,16 @@ body {
     box-shadow: 0 0 15px rgba(255, 182, 204, 0.4);
 }
 
+/* Remove default blue/yellow autofill background on Chrome/Edge */
+.win-input-group input:-webkit-autofill,
+.win-input-group input:-webkit-autofill:hover,
+.win-input-group input:-webkit-autofill:focus,
+.win-input-group input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    -webkit-text-fill-color: #333 !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 .win-input-group input:focus+label,
 .win-input-group input:not(:placeholder-shown)+label,
 .win-input-group select:focus+label,
@@ -330,7 +340,7 @@ body {
     color: #999;
     font-weight: 400;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .auth-form.hidden {

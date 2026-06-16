@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // State Management
 const state = {
     currentTab: 'home',
-    transactions: [],
+    transactions: JSON.parse(localStorage.getItem('smoney_transactions')) || [],
     newTransaction: {
         type: 'expense',
         amount: 0,
@@ -53,26 +53,26 @@ const state = {
         email: localStorage.getItem('smoney_user_email') || ''
     },
     settings: {
-        soundEnabled: true
+        soundEnabled: localStorage.getItem('smoney_sound_enabled') !== 'false'
     },
-    theme: {
+    theme: JSON.parse(localStorage.getItem('smoney_theme')) || {
         mode: 'global',
-        global: '#ff8fb1',
-        tabs: { home: '#ff8fb1', transaction: '#ff8fb1', stats: '#ff8fb1', settings: '#ff8fb1' }
+        global: '#fff9fb',
+        tabs: { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' }
     },
     security: {
-        enabled: false,
-        type: 'pin',
-        pin: '',
-        pattern: '',
-        biometricEnabled: false
+        enabled: localStorage.getItem('smoney_security_enabled') === 'true',
+        type: localStorage.getItem('smoney_security_type') || 'pin', // 'pin', 'pattern', 'biometric'
+        pin: localStorage.getItem('smoney_security_pin') || '',
+        pattern: localStorage.getItem('smoney_security_pattern') || '',
+        biometricEnabled: localStorage.getItem('smoney_biometric_enabled') === 'true'
     },
-    goals: {
+    goals: JSON.parse(localStorage.getItem('smoney_goals')) || {
         monthlyBudget: 0
     },
     getTerms() {
         const gender = (this.user && this.user.gender) ? this.user.gender : 'nam';
-        const isMale = gender === 'nam' || gender === 'male';
+        const isMale = gender === 'nam';
         return {
             pronoun: isMale ? 'Anh' : 'Em',
             greeting: isMale ? 'anh' : 'em',
@@ -178,29 +178,11 @@ function applyThemeColor(color) {
     let b = (rgb >> 0) & 0xff;
     let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
-    let rf = r / 255, gf = g / 255, bf = b / 255;
-    let max = Math.max(rf, gf, bf), min = Math.min(rf, gf, bf);
-    let h = 0;
-    if (max != min) {
-        let d = max - min;
-        switch (max) {
-            case rf: h = (gf - bf) / d + (gf < bf ? 6 : 0); break;
-            case gf: h = (bf - rf) / d + 2; break;
-            case bf: h = (rf - gf) / d + 4; break;
-        }
-        h /= 6;
-    }
-    let hueRotate = Math.round(h * 360) - 40;
-    document.documentElement.style.setProperty('--theme-hue-rotate', hueRotate + 'deg');
-
     if (luma > 210) {
         document.documentElement.style.setProperty('--primary', `color-mix(in srgb, var(--theme-base) 75%, black)`);
     } else {
         document.documentElement.style.setProperty('--primary', `var(--theme-base)`);
     }
-
-    let textColor = luma > 150 ? '#5d5d5d' : '#ffffff';
-    document.documentElement.style.setProperty('--primary-text', textColor);
 
     document.documentElement.style.setProperty('--bg-color', `color-mix(in srgb, var(--primary) 10%, white)`);
     document.documentElement.style.setProperty('--secondary', `color-mix(in srgb, var(--primary) 60%, white)`);
@@ -215,10 +197,10 @@ function applyThemeColor(color) {
 function applyTheme() {
     // Ensure theme structure is valid (migration for old data)
     if (!state.theme.tabs) {
-        state.theme.tabs = { home: '#ff8fb1', transaction: '#ff8fb1', stats: '#ff8fb1', settings: '#ff8fb1' };
+        state.theme.tabs = { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' };
     }
     if (!state.theme.mode) state.theme.mode = 'global';
-    if (!state.theme.global) state.theme.global = '#ff8fb1';
+    if (!state.theme.global) state.theme.global = '#fff9fb';
 
     let color = state.theme.global;
     if (state.theme.mode === 'per-tab') {
@@ -667,7 +649,7 @@ function setupEventListeners() {
         if (state.newTransaction.type === 'income') {
             noteInput.placeholder = `Ở đâu có dạ ${terms.spouse}?`;
             // Phát âm thanh nếu là nam (delay 1s)
-            if (state.user.gender === 'nam' || state.user.gender === 'male') {
+            if (state.user.gender === 'nam') {
                 setTimeout(() => {
                     state.playSound('assets/ado/odaucodachong.wav');
                 }, 1000);
@@ -747,7 +729,7 @@ function setupEventListeners() {
         const soundToggle = e.target.closest('.sound-toggle-area');
         if (soundToggle) {
             state.settings.soundEnabled = !state.settings.soundEnabled;
-            ApiService.syncToCloud();
+            localStorage.setItem('smoney_sound_enabled', state.settings.soundEnabled);
             renderTab(state.currentTab);
             return;
         }
@@ -790,7 +772,7 @@ function setupEventListeners() {
                 registerRealBiometric().then(success => {
                     if (success) {
                         state.security.biometricEnabled = true;
-                        ApiService.syncToCloud();
+                        localStorage.setItem('smoney_biometric_enabled', true);
                         renderTab('security');
                     } else {
                         alert("Không thể thiết lập vân tay. Vui lòng thử lại!");
@@ -799,54 +781,9 @@ function setupEventListeners() {
             } else {
                 // Turning OFF
                 state.security.biometricEnabled = false;
+                localStorage.setItem('smoney_biometric_enabled', false);
                 localStorage.removeItem('smoney_bio_credential');
-                ApiService.syncToCloud();
                 renderTab('security');
-            }
-            return;
-        }
-
-        // Change Name Button
-        const changeNameBtn = e.target.closest('#change-name-btn');
-        if (changeNameBtn) {
-            const modal = document.getElementById('change-name-modal');
-            const input = document.getElementById('new-name-input');
-            if (modal && input) {
-                input.value = state.user.name || '';
-                modal.classList.remove('hidden');
-                setTimeout(() => input.focus(), 100);
-            }
-            return;
-        }
-
-        const cancelNameBtn = e.target.closest('#change-name-cancel');
-        if (cancelNameBtn) {
-            document.getElementById('change-name-modal').classList.add('hidden');
-            return;
-        }
-
-        const okNameBtn = e.target.closest('#change-name-ok');
-        if (okNameBtn) {
-            const modal = document.getElementById('change-name-modal');
-            const input = document.getElementById('new-name-input');
-            const newName = input.value;
-            
-            if (newName && newName.trim() !== "" && newName.trim() !== state.user.name) {
-                showToast("Đang cập nhật tên...");
-                modal.classList.add('hidden');
-                ApiService.call('changeDisplayName', { name: newName.trim() }).then(result => {
-                    if (result.success) {
-                        state.user.name = newName.trim();
-                        ApiService.saveLocal();
-                        ApiService.syncToCloud();
-                        showToast("Đổi tên thành công!");
-                        renderTab('settings');
-                    } else {
-                        showToast("Lỗi: " + (result.error || "Không thể cập nhật tên"));
-                    }
-                });
-            } else {
-                modal.classList.add('hidden');
             }
             return;
         }
@@ -1056,14 +993,14 @@ function renderHome(container) {
             <div class="stat-item">
                 <div class="stat-icon income"><i data-lucide="trending-up"></i></div>
                 <div class="stat-info">
-                    <span>Kiếm Tiền</span>
+                    <span>Heo Ăn</span>
                     <p>+${totalIncome.toLocaleString()}</p>
                 </div>
             </div>
             <div class="stat-item">
                 <div class="stat-icon expense"><i data-lucide="trending-down"></i></div>
                 <div class="stat-info">
-                    <span>Tiêu Tiền</span>
+                    <span>Heo Tiêu</span>
                     <p>-${totalExpense.toLocaleString()}</p>
                 </div>
             </div>
@@ -1230,7 +1167,7 @@ function renderTransaction(container) {
         state.transactions.unshift(incomeTx);
         state.transactions.unshift(expenseTx);
 
-        ApiService.syncToCloud();
+        localStorage.setItem('smoney_transactions', JSON.stringify(state.transactions));
         showToast("Đã chuyển quỹ thành công!");
         modal.classList.add('hidden');
     };
@@ -1718,12 +1655,6 @@ function renderSettings(container) {
             </div>
             ` : ''}
 
-            <div class="settings-item" id="change-name-btn">
-                <div class="item-icon-pink"><i data-lucide="edit-2"></i></div>
-                <div class="item-text">Đổi tên hiển thị</div>
-                <i data-lucide="chevron-right" class="chevron"></i>
-            </div>
-
             <div class="settings-item theme-link">
                 <div class="item-icon-pink"><i data-lucide="palette"></i></div>
                 <div class="item-text">Chủ đề</div>
@@ -1814,7 +1745,7 @@ function renderSecuritySettings(container) {
         toggleSecurity.onclick = (e) => {
             e.stopPropagation();
             state.security.enabled = !state.security.enabled;
-            ApiService.syncToCloud();
+            localStorage.setItem('smoney_security_enabled', state.security.enabled);
             renderSecuritySettings(container);
             if (window.lucide) lucide.createIcons();
         };
@@ -1917,6 +1848,8 @@ function setupSecurityListeners() {
             const hashedPin = await hashPassword(tempPin);
             state.security.pin = hashedPin;
             state.security.type = 'pin';
+            localStorage.setItem('smoney_security_pin', hashedPin);
+            localStorage.setItem('smoney_security_type', 'pin');
         } else {
             if (tempPattern.length < 4) {
                 alert("Vui lòng vẽ ít nhất 4 điểm!");
@@ -1927,10 +1860,12 @@ function setupSecurityListeners() {
             const hashedPattern = await hashPassword(patternString);
             state.security.pattern = hashedPattern;
             state.security.type = 'pattern';
+            localStorage.setItem('smoney_security_pattern', hashedPattern);
+            localStorage.setItem('smoney_security_type', 'pattern');
         }
 
         state.security.enabled = true; // Auto-enable when a password is saved
-        ApiService.syncToCloud();
+        localStorage.setItem('smoney_security_enabled', true);
 
         modal.classList.add('hidden');
         showToast("Đã thiết lập bảo mật");
@@ -2058,7 +1993,7 @@ function openModal(type) {
     state.newTransaction.type = type;
 
     // Phát âm thanh kute nếu là nam (delay 1s)
-    if (state.user.gender === 'nam' || state.user.gender === 'male') {
+    if (state.user.gender === 'nam') {
         setTimeout(() => {
             state.playSound('assets/ado/baonhieudachong.wav');
         }, 1000);
@@ -2333,7 +2268,7 @@ function renderGoals(container) {
     document.getElementById('save-goals-btn').onclick = () => {
         const monthly = Number(monthlyInput.value.replace(/\D/g, ''));
         state.goals.monthlyBudget = monthly;
-        ApiService.syncToCloud();
+        localStorage.setItem('smoney_goals', JSON.stringify(state.goals));
         showToast('Đã lưu mục tiêu!');
         renderGoals(container);
         if (window.lucide) lucide.createIcons();
@@ -2471,7 +2406,7 @@ function renderThemeSettings(container) {
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0;">
                 <h4 style="color: var(--text-main); margin: 0;">Chọn màu chủ đạo</h4>
-                <button id="reset-default-btn" style="padding: 5px 12px; border-radius: 15px; border: 1px solid #ddd; background: #ff8fb1; color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <button id="reset-default-btn" style="padding: 5px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff9fb; color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                     <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Mặc định
                 </button>
             </div>
@@ -2513,7 +2448,7 @@ function renderThemeSettings(container) {
     const tabSelect = document.getElementById('theme-tab-select');
 
     let currentSelectedTab = tabSelect ? tabSelect.value : 'home';
-    if (!state.theme.tabs) state.theme.tabs = { home: '#ff8fb1', transaction: '#ff8fb1', stats: '#ff8fb1', settings: '#ff8fb1' };
+    if (!state.theme.tabs) state.theme.tabs = { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' };
     let selectedColor = state.theme.mode === 'global' ? state.theme.global : (state.theme.tabs[currentSelectedTab] || state.theme.global);
 
     function updateActivePreset() {
@@ -2526,7 +2461,7 @@ function renderThemeSettings(container) {
     if (tabSelect) {
         tabSelect.onchange = (e) => {
             currentSelectedTab = e.target.value;
-            selectedColor = state.theme.tabs[currentSelectedTab] || '#ff8fb1';
+            selectedColor = state.theme.tabs[currentSelectedTab] || '#fff9fb';
             updateActivePreset();
             applyPreviewColor();
         };
@@ -2574,7 +2509,7 @@ function renderThemeSettings(container) {
         } else {
             state.theme.tabs[currentSelectedTab] = selectedColor;
         }
-        ApiService.syncToCloud();
+        localStorage.setItem('smoney_theme', JSON.stringify(state.theme));
         showToast("Đã lưu chủ đề màu!");
         applyTheme();
     };
@@ -2621,16 +2556,6 @@ function setupAuthListeners() {
 
     if (showLogin) {
         showLogin.onclick = () => {
-            const regEmail = document.getElementById('reg-email').value.trim();
-            const regUsername = document.getElementById('reg-id').value.trim();
-            const fillValue = regEmail || regUsername; // Ưu tiên điền email
-            if (fillValue) {
-                const loginEmailInput = document.getElementById('login-email');
-                if (loginEmailInput) {
-                    loginEmailInput.value = fillValue;
-                    setTimeout(() => document.getElementById('login-password').focus(), 100);
-                }
-            }
             registerForm.classList.add('hidden');
             forgotForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
@@ -2678,42 +2603,6 @@ function setupAuthListeners() {
     const registerBtn = document.getElementById('register-btn');
     if (registerBtn) {
         registerBtn.onclick = handleRegister;
-    }
-
-    // Real-time username validation
-    const regIdInput = document.getElementById('reg-id');
-    if (regIdInput) {
-        let usernameTimer = null;
-        regIdInput.addEventListener('input', () => {
-            clearTimeout(usernameTimer);
-            const val = regIdInput.value.trim();
-            const errEl = document.getElementById('username-error');
-            const regBtn = document.getElementById('register-btn');
-            if (!val) {
-                if (errEl) errEl.textContent = '';
-                if (regBtn) regBtn.disabled = false;
-                regIdInput.style.borderColor = '';
-                return;
-            }
-            usernameTimer = setTimeout(async () => {
-                const result = await ApiService.call('checkAccount', { username: val });
-                if (result.success) {
-                    if (result.exists) {
-                        if (errEl) { errEl.textContent = 'Tài khoản tồn tại!'; errEl.style.color = '#ff4d4d'; }
-                        if (regBtn) { regBtn.disabled = true; regBtn.style.opacity = '0.5'; }
-                        regIdInput.style.borderColor = '#ff4d4d';
-                    } else {
-                        if (errEl) { errEl.textContent = ''; }
-                        if (regBtn) { regBtn.disabled = false; regBtn.style.opacity = '1'; }
-                        regIdInput.style.borderColor = '#4caf50';
-                    }
-                } else {
-                    if (errEl) { errEl.textContent = 'Lỗi kết nối Backend! (Chưa Deploy bản mới)'; errEl.style.color = '#ff9800'; }
-                    if (regBtn) { regBtn.disabled = false; regBtn.style.opacity = '1'; }
-                    regIdInput.style.borderColor = '#ff9800';
-                }
-            }, 500);
-        });
     }
 
     const verifyOtpBtn = document.getElementById('verify-otp-btn');
@@ -2795,9 +2684,7 @@ async function handleLogin() {
         showToast("Chào mừng quay trở lại, " + state.user.name + "!");
 
         // Initial sync
-        ApiService.syncFromCloud().then(() => {
-            renderTab(state.currentTab);
-        });
+        ApiService.syncFromCloud();
     } else {
         showToast(result.error || "Đăng nhập thất bại!");
     }
@@ -2867,20 +2754,6 @@ async function handleRegister() {
         showToast("Vui lòng điền đầy đủ thông tin!");
         return;
     }
-
-    showToast("Đang kiểm tra tài khoản...");
-    const checkResult = await ApiService.call('checkAccount', { username: username, email: email });
-    if (checkResult.success && checkResult.exists) {
-        if (checkResult.reason === 'username') {
-            showToast("Tên đăng nhập đã tồn tại!");
-            document.getElementById('reg-id').style.borderColor = '#ff4d4d';
-        } else {
-            showToast("Email này đã được đăng ký!");
-            document.getElementById('reg-email').style.borderColor = '#ff4d4d';
-        }
-        return;
-    }
-
     showToast("Đang gửi mã OTP...");
 
     // Gọi API để gửi OTP
@@ -2977,14 +2850,7 @@ function showConfirmModal() {
 
 function logoutUser() {
     state.user.loggedIn = false;
-    const keysToRemove = [
-        'smoney_logged_in', 'smoney_transactions', 'smoney_settings',
-        'smoney_theme', 'smoney_goals', 'smoney_security',
-        'smoney_user_name', 'smoney_user_gender', 'smoney_user_email',
-        'smoney_security_pin', 'smoney_security_pattern', 'smoney_security_type',
-        'smoney_security_enabled', 'smoney_biometric_enabled', 'smoney_bio_credential'
-    ];
-    keysToRemove.forEach(key => localStorage.removeItem(key));
+    localStorage.removeItem('smoney_logged_in');
     location.reload();
 }
 window.logoutUser = logoutUser;
@@ -3063,8 +2929,6 @@ async function handleGoogleCredentialResponse(response) {
         hideAuthScreen();
         unlockApp();
         showToast("Chào mừng " + state.user.name + "!");
-        ApiService.syncFromCloud().then(() => {
-            renderTab(state.currentTab);
-        });
+        ApiService.syncFromCloud();
     }
 }
