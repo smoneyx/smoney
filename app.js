@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // State Management
 const state = {
     currentTab: 'home',
-    transactions: JSON.parse(localStorage.getItem('smoney_transactions')) || [],
+    transactions: [],
     newTransaction: {
         type: 'expense',
         amount: 0,
@@ -53,21 +53,21 @@ const state = {
         email: localStorage.getItem('smoney_user_email') || ''
     },
     settings: {
-        soundEnabled: localStorage.getItem('smoney_sound_enabled') !== 'false'
+        soundEnabled: true
     },
-    theme: JSON.parse(localStorage.getItem('smoney_theme')) || {
+    theme: {
         mode: 'global',
-        global: '#fff9fb',
-        tabs: { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' }
+        global: '#ff8fb1',
+        tabs: { home: '#ff8fb1', transaction: '#ff8fb1', stats: '#ff8fb1', settings: '#ff8fb1' }
     },
     security: {
-        enabled: localStorage.getItem('smoney_security_enabled') === 'true',
-        type: localStorage.getItem('smoney_security_type') || 'pin', // 'pin', 'pattern', 'biometric'
-        pin: localStorage.getItem('smoney_security_pin') || '',
-        pattern: localStorage.getItem('smoney_security_pattern') || '',
-        biometricEnabled: localStorage.getItem('smoney_biometric_enabled') === 'true'
+        enabled: false,
+        type: 'pin',
+        pin: '',
+        pattern: '',
+        biometricEnabled: false
     },
-    goals: JSON.parse(localStorage.getItem('smoney_goals')) || {
+    goals: {
         monthlyBudget: 0
     },
     getTerms() {
@@ -197,10 +197,10 @@ function applyThemeColor(color) {
 function applyTheme() {
     // Ensure theme structure is valid (migration for old data)
     if (!state.theme.tabs) {
-        state.theme.tabs = { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' };
+        state.theme.tabs = { home: '#ff8fb1', transaction: '#ff8fb1', stats: '#ff8fb1', settings: '#ff8fb1' };
     }
     if (!state.theme.mode) state.theme.mode = 'global';
-    if (!state.theme.global) state.theme.global = '#fff9fb';
+    if (!state.theme.global) state.theme.global = '#ff8fb1';
 
     let color = state.theme.global;
     if (state.theme.mode === 'per-tab') {
@@ -729,7 +729,7 @@ function setupEventListeners() {
         const soundToggle = e.target.closest('.sound-toggle-area');
         if (soundToggle) {
             state.settings.soundEnabled = !state.settings.soundEnabled;
-            localStorage.setItem('smoney_sound_enabled', state.settings.soundEnabled);
+            ApiService.syncToCloud();
             renderTab(state.currentTab);
             return;
         }
@@ -772,7 +772,7 @@ function setupEventListeners() {
                 registerRealBiometric().then(success => {
                     if (success) {
                         state.security.biometricEnabled = true;
-                        localStorage.setItem('smoney_biometric_enabled', true);
+                        ApiService.syncToCloud();
                         renderTab('security');
                     } else {
                         alert("Không thể thiết lập vân tay. Vui lòng thử lại!");
@@ -781,8 +781,8 @@ function setupEventListeners() {
             } else {
                 // Turning OFF
                 state.security.biometricEnabled = false;
-                localStorage.setItem('smoney_biometric_enabled', false);
                 localStorage.removeItem('smoney_bio_credential');
+                ApiService.syncToCloud();
                 renderTab('security');
             }
             return;
@@ -993,14 +993,14 @@ function renderHome(container) {
             <div class="stat-item">
                 <div class="stat-icon income"><i data-lucide="trending-up"></i></div>
                 <div class="stat-info">
-                    <span>Heo Ăn</span>
+                    <span>Kiếm Tiền</span>
                     <p>+${totalIncome.toLocaleString()}</p>
                 </div>
             </div>
             <div class="stat-item">
                 <div class="stat-icon expense"><i data-lucide="trending-down"></i></div>
                 <div class="stat-info">
-                    <span>Heo Tiêu</span>
+                    <span>Tiêu Tiền</span>
                     <p>-${totalExpense.toLocaleString()}</p>
                 </div>
             </div>
@@ -1167,7 +1167,7 @@ function renderTransaction(container) {
         state.transactions.unshift(incomeTx);
         state.transactions.unshift(expenseTx);
 
-        localStorage.setItem('smoney_transactions', JSON.stringify(state.transactions));
+        ApiService.syncToCloud();
         showToast("Đã chuyển quỹ thành công!");
         modal.classList.add('hidden');
     };
@@ -1745,7 +1745,7 @@ function renderSecuritySettings(container) {
         toggleSecurity.onclick = (e) => {
             e.stopPropagation();
             state.security.enabled = !state.security.enabled;
-            localStorage.setItem('smoney_security_enabled', state.security.enabled);
+            ApiService.syncToCloud();
             renderSecuritySettings(container);
             if (window.lucide) lucide.createIcons();
         };
@@ -1848,8 +1848,6 @@ function setupSecurityListeners() {
             const hashedPin = await hashPassword(tempPin);
             state.security.pin = hashedPin;
             state.security.type = 'pin';
-            localStorage.setItem('smoney_security_pin', hashedPin);
-            localStorage.setItem('smoney_security_type', 'pin');
         } else {
             if (tempPattern.length < 4) {
                 alert("Vui lòng vẽ ít nhất 4 điểm!");
@@ -1860,12 +1858,10 @@ function setupSecurityListeners() {
             const hashedPattern = await hashPassword(patternString);
             state.security.pattern = hashedPattern;
             state.security.type = 'pattern';
-            localStorage.setItem('smoney_security_pattern', hashedPattern);
-            localStorage.setItem('smoney_security_type', 'pattern');
         }
 
         state.security.enabled = true; // Auto-enable when a password is saved
-        localStorage.setItem('smoney_security_enabled', true);
+        ApiService.syncToCloud();
 
         modal.classList.add('hidden');
         showToast("Đã thiết lập bảo mật");
@@ -2268,7 +2264,7 @@ function renderGoals(container) {
     document.getElementById('save-goals-btn').onclick = () => {
         const monthly = Number(monthlyInput.value.replace(/\D/g, ''));
         state.goals.monthlyBudget = monthly;
-        localStorage.setItem('smoney_goals', JSON.stringify(state.goals));
+        ApiService.syncToCloud();
         showToast('Đã lưu mục tiêu!');
         renderGoals(container);
         if (window.lucide) lucide.createIcons();
@@ -2406,7 +2402,7 @@ function renderThemeSettings(container) {
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0;">
                 <h4 style="color: var(--text-main); margin: 0;">Chọn màu chủ đạo</h4>
-                <button id="reset-default-btn" style="padding: 5px 12px; border-radius: 15px; border: 1px solid #ddd; background: #fff9fb; color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <button id="reset-default-btn" style="padding: 5px 12px; border-radius: 15px; border: 1px solid #ddd; background: #ff8fb1; color: var(--primary); font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                     <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Mặc định
                 </button>
             </div>
@@ -2448,7 +2444,7 @@ function renderThemeSettings(container) {
     const tabSelect = document.getElementById('theme-tab-select');
 
     let currentSelectedTab = tabSelect ? tabSelect.value : 'home';
-    if (!state.theme.tabs) state.theme.tabs = { home: '#fff9fb', transaction: '#fff9fb', stats: '#fff9fb', settings: '#fff9fb' };
+    if (!state.theme.tabs) state.theme.tabs = { home: '#ff8fb1', transaction: '#ff8fb1', stats: '#ff8fb1', settings: '#ff8fb1' };
     let selectedColor = state.theme.mode === 'global' ? state.theme.global : (state.theme.tabs[currentSelectedTab] || state.theme.global);
 
     function updateActivePreset() {
@@ -2461,7 +2457,7 @@ function renderThemeSettings(container) {
     if (tabSelect) {
         tabSelect.onchange = (e) => {
             currentSelectedTab = e.target.value;
-            selectedColor = state.theme.tabs[currentSelectedTab] || '#fff9fb';
+            selectedColor = state.theme.tabs[currentSelectedTab] || '#ff8fb1';
             updateActivePreset();
             applyPreviewColor();
         };
@@ -2509,7 +2505,7 @@ function renderThemeSettings(container) {
         } else {
             state.theme.tabs[currentSelectedTab] = selectedColor;
         }
-        localStorage.setItem('smoney_theme', JSON.stringify(state.theme));
+        ApiService.syncToCloud();
         showToast("Đã lưu chủ đề màu!");
         applyTheme();
     };
@@ -2684,7 +2680,9 @@ async function handleLogin() {
         showToast("Chào mừng quay trở lại, " + state.user.name + "!");
 
         // Initial sync
-        ApiService.syncFromCloud();
+        ApiService.syncFromCloud().then(() => {
+            renderTab(state.currentTab);
+        });
     } else {
         showToast(result.error || "Đăng nhập thất bại!");
     }
@@ -2936,6 +2934,8 @@ async function handleGoogleCredentialResponse(response) {
         hideAuthScreen();
         unlockApp();
         showToast("Chào mừng " + state.user.name + "!");
-        ApiService.syncFromCloud();
+        ApiService.syncFromCloud().then(() => {
+            renderTab(state.currentTab);
+        });
     }
 }
