@@ -77,5 +77,6 @@ const ApiService = {
         localStorage.setItem('smoney_user_name', state.user.name);
         localStorage.setItem('smoney_user_gender', state.user.gender);
         localStorage.setItem('smoney_user_email', state.user.email);
+        localStorage.setItem('smoney_user_avatar', state.user.avatar || '');
     }
 };
