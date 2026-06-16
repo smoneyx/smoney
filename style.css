@@ -887,12 +887,12 @@ header h1 {
     .method-btn span {
         display: none;
     }
-    
+
     .method-btn {
         padding: 10px 4px !important;
         justify-content: center;
     }
-    
+
     .method-btn i {
         width: 22px;
         height: 22px;
@@ -1887,7 +1887,8 @@ body.web-layout .kute-toast {
     left: calc(50% + 120px);
 }
 
-body.web-layout:has(#auth-screen:not(.hidden)) .kute-toast {
+body.web-layout:has(#auth-screen:not(.hidden)) .kute-toast,
+body.web-layout:has(#lock-screen:not(.hidden)) .kute-toast {
     left: 50%;
 }
 
