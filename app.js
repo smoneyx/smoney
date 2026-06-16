@@ -72,7 +72,7 @@ const state = {
     },
     getTerms() {
         const gender = (this.user && this.user.gender) ? this.user.gender : 'nam';
-        const isMale = gender === 'nam';
+        const isMale = gender === 'nam' || gender === 'male';
         return {
             pronoun: isMale ? 'Anh' : 'Em',
             greeting: isMale ? 'anh' : 'em',
@@ -649,7 +649,7 @@ function setupEventListeners() {
         if (state.newTransaction.type === 'income') {
             noteInput.placeholder = `Ở đâu có dạ ${terms.spouse}?`;
             // Phát âm thanh nếu là nam (delay 1s)
-            if (state.user.gender === 'nam') {
+            if (state.user.gender === 'nam' || state.user.gender === 'male') {
                 setTimeout(() => {
                     state.playSound('assets/ado/odaucodachong.wav');
                 }, 1000);
@@ -1993,7 +1993,7 @@ function openModal(type) {
     state.newTransaction.type = type;
 
     // Phát âm thanh kute nếu là nam (delay 1s)
-    if (state.user.gender === 'nam') {
+    if (state.user.gender === 'nam' || state.user.gender === 'male') {
         setTimeout(() => {
             state.playSound('assets/ado/baonhieudachong.wav');
         }, 1000);
@@ -2850,7 +2850,14 @@ function showConfirmModal() {
 
 function logoutUser() {
     state.user.loggedIn = false;
-    localStorage.removeItem('smoney_logged_in');
+    const keysToRemove = [
+        'smoney_logged_in', 'smoney_transactions', 'smoney_settings',
+        'smoney_theme', 'smoney_goals', 'smoney_security',
+        'smoney_user_name', 'smoney_user_gender', 'smoney_user_email',
+        'smoney_security_pin', 'smoney_security_pattern', 'smoney_security_type',
+        'smoney_security_enabled', 'smoney_biometric_enabled', 'smoney_bio_credential'
+    ];
+    keysToRemove.forEach(key => localStorage.removeItem(key));
     location.reload();
 }
 window.logoutUser = logoutUser;
