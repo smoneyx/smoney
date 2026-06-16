@@ -34,7 +34,7 @@
             <div id="login-form" class="auth-form">
                 <div class="win-input-group">
                     <input type="text" id="login-email" placeholder=" ">
-                    <label>Username</label>
+                    <label>Username hoặc Email</label>
                 </div>
                 <div class="win-input-group">
                     <input type="password" id="login-password" placeholder=" ">
@@ -58,28 +58,7 @@
                 </div>
             </div>
 
-            <div id="forgot-password-form" class="auth-form hidden">
-                <div class="win-input-group">
-                    <input type="text" id="forgot-email" placeholder=" ">
-                    <label>Email của bạn</label>
-                </div>
-                
-                <div id="forgot-otp-group" class="hidden">
-                    <div class="win-input-group">
-                        <input type="text" id="forgot-otp" placeholder=" ">
-                        <label>Nhập mã OTP (6 số)</label>
-                    </div>
-                    <div class="win-input-group">
-                        <input type="password" id="forgot-new-password" placeholder=" ">
-                        <label>Mật khẩu mới</label>
-                    </div>
-                </div>
 
-                <button id="forgot-btn" class="win-primary-btn">Tiếp tục (Nhận OTP)</button>
-                <button id="verify-forgot-btn" class="win-primary-btn hidden">Xác nhận đổi mật khẩu</button>
-                
-                <p class="auth-switch"><span id="back-to-login">Quay lại đăng nhập</span></p>
-            </div>
 
             <div id="register-form" class="auth-form hidden">
                 <div class="win-input-group">
@@ -94,6 +73,9 @@
                     <div class="win-input-group" style="flex: 1.5;">
                         <input type="text" id="reg-id" placeholder=" ">
                         <label>Username</label>
+                        <div id="username-error"
+                            style="font-size: 11px; margin-top: -12px; margin-bottom: 12px; font-weight: 600; text-align: left; padding-left: 5px;">
+                        </div>
                     </div>
                     <div class="win-input-group" style="flex: 1;">
                         <div class="win-gender-toggle" id="gender-toggle-container">
@@ -113,8 +95,76 @@
                 </div>
                 <button id="register-btn" class="win-primary-btn">Tiếp tục (Nhận OTP)</button>
                 <button id="verify-otp-btn" class="win-primary-btn hidden">Xác nhận Đăng ký</button>
-                <p id="otp-back" class="auth-switch hidden" style="margin-top: 10px;"><span style="cursor:pointer; color: var(--primary);">Quay lại sửa thông tin</span></p>
+                <p id="otp-back" class="auth-switch hidden" style="margin-top: 10px;"><span
+                        style="cursor:pointer; color: var(--primary);">Quay lại sửa thông tin</span></p>
                 <p class="auth-switch">Đã có tài khoản? <span id="show-login">Đăng nhập</span></p>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgot-password-form" class="auth-form hidden">
+                <div class="auth-welcome" style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: var(--primary);">Quên mật khẩu?</h3>
+                    <p style="font-size: 13px; color: var(--text-light);">Đừng lo, Heo Con sẽ giúp bạn lấy lại nha</p>
+                </div>
+
+                <div id="forgot-step-1">
+                    <div class="win-input-group">
+                        <input type="email" id="forgot-email" placeholder=" ">
+                        <label>Email đăng ký</label>
+                    </div>
+                    <button id="forgot-send-otp-btn" class="win-primary-btn">Nhận mã xác minh</button>
+                </div>
+
+                <div id="forgot-step-2" class="hidden">
+                    <div class="win-input-group">
+                        <input type="text" id="forgot-otp" placeholder=" ">
+                        <label>Mã OTP (từ Email)</label>
+                    </div>
+                    <div class="win-input-group">
+                        <input type="password" id="forgot-new-password" placeholder=" ">
+                        <label>Mật khẩu mới</label>
+                    </div>
+                    <div class="win-input-group">
+                        <input type="password" id="forgot-confirm-password" placeholder=" ">
+                        <label>Xác nhận mật khẩu mới</label>
+                    </div>
+                    <button id="forgot-reset-btn" class="win-primary-btn">Đổi mật khẩu</button>
+                    <p id="forgot-back-step-1" class="auth-switch" style="margin-top: 10px;"><span
+                            style="cursor:pointer; color: var(--primary);">Quay lại sửa email</span></p>
+                </div>
+
+                <p id="back-to-login" class="auth-switch">Quay lại <span>Đăng nhập</span></p>
+            </div>
+
+            <!-- Google Setup Form -->
+            <div id="google-setup-form" class="auth-form hidden">
+                <div class="auth-welcome" style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: var(--primary);">Chào mừng bạn mới!</h3>
+                    <p style="font-size: 13px; color: var(--text-light);">Hoàn thiện thông tin để Smoney phục vụ tốt
+                        hơn nha</p>
+                </div>
+                <div class="win-input-group">
+                    <input type="text" id="setup-name" placeholder=" ">
+                    <label>Tên hiển thị</label>
+                </div>
+                <div class="win-input-row" style="display: flex; gap: 15px;">
+                    <div class="win-input-group" style="flex: 1.5;">
+                        <input type="text" id="setup-id" placeholder=" ">
+                        <label>Username / ID</label>
+                    </div>
+                    <div class="win-input-group" style="flex: 1;">
+                        <div class="win-gender-toggle" id="setup-gender-toggle">
+                            <div class="gender-option active" data-value="male">Nam</div>
+                            <div class="gender-option" data-value="female">Nữ</div>
+                            <input type="hidden" id="setup-gender" value="male">
+                        </div>
+                    </div>
+                </div>
+                <div class="win-input-group">
+                    <input type="password" id="setup-password" placeholder=" " spellcheck="false">
+                    <label>Mật khẩu (Tạo mới)</label>
+                </div>
+                <button id="setup-save-btn" class="win-primary-btn">Bắt đầu ngay thôi!</button>
             </div>
         </div>
     </div>
@@ -123,7 +173,7 @@
     <div id="lock-screen" class="lock-screen hidden">
         <div class="lock-content">
             <h2 id="lock-title">Nhập mã PIN</h2>
-            <p id="lock-subtitle" style="color: var(--text-light); margin-bottom: 30px;">Bảo vệ Heo Con của bạn</p>
+            <p id="lock-subtitle" style="color: var(--text-light); margin-bottom: 30px;">Bảo vệ ví tiền của bạn</p>
 
             <!-- Lock PIN Area -->
             <div id="lock-pin-area" class="hidden">
@@ -188,7 +238,7 @@
         <img id="overlay-img" src="" alt="Full size">
     </div>
 
-    <div id="app" class="app-container">
+    <div id="app" class="app-container hidden">
         <!-- Main Content Area -->
         <main id="main-content" class="fade-in">
             <!-- Content will be injected here by app.js -->
@@ -247,7 +297,8 @@
 
                     <div id="step-2" class="hidden">
                         <div class="input-group">
-                            <input type="text" id="note-input" placeholder="Ghi chú (Ví dụ: Ăn kem...)">
+                            <input type="text" id="note-input" placeholder="Ghi chú (Ví dụ: Ăn kem...)"
+                                style="font-size: 14px;">
                         </div>
                         <div id="note-warning" class="hidden"
                             style="color: #ff4d4d; font-size: 12px; text-align: center; margin-top: -5px; margin-bottom: 10px; font-weight: 600;">
@@ -315,6 +366,28 @@
                 </div>
                 <div class="modal-footer">
                     <button id="security-save-btn" class="primary-btn">Lưu mã khóa</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Change Name Modal -->
+        <div id="change-name-modal" class="modal hidden">
+            <div class="modal-content"
+                style="background: white; border-radius: 30px; padding: 30px; width: 90%; max-width: 340px; text-align: center; height: auto !important; justify-content: center !important;">
+                <div
+                    style="background: var(--bg-color); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--primary);">
+                    <i data-lucide="edit-2" style="width: 30px; height: 30px;"></i>
+                </div>
+                <h3 style="font-family: 'Lexend', sans-serif; font-weight: 700; color: #4a4a4a; margin-bottom: 10px;">
+                    Đổi tên hiển thị</h3>
+                <p style="color: #999; font-size: 14px; margin-bottom: 25px;">Nhập tên mới mà bạn muốn thay đổi</p>
+                <input type="text" id="new-name-input" placeholder="Tên mới"
+                    style="width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #eee; margin-bottom: 25px; font-family: 'Outfit', sans-serif; font-size: 16px; text-align: center; background: #f9f9f9; outline: none;">
+                <div style="display: flex; gap: 12px;">
+                    <button id="change-name-cancel"
+                        style="flex: 1; padding: 12px; border-radius: 15px; border: none; background: #f5f5f5; color: #666; font-weight: 700; cursor: pointer;">Hủy</button>
+                    <button id="change-name-ok"
+                        style="flex: 1; padding: 12px; border-radius: 15px; border: none; background: var(--primary); color: var(--primary-text); font-weight: 700; cursor: pointer;">Lưu</button>
                 </div>
             </div>
         </div>

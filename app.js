@@ -2546,6 +2546,23 @@ function setupAuthListeners() {
     const forgotForm = document.getElementById('forgot-password-form');
     const authWelcome = document.getElementById('auth-welcome');
 
+    
+    const setupSaveBtn = document.getElementById('setup-save-btn');
+    if (setupSaveBtn) {
+        setupSaveBtn.onclick = handleSetupSave;
+    }
+    
+    const setupGenderOptions = document.querySelectorAll('#setup-gender-toggle .gender-option');
+    if(setupGenderOptions) {
+        setupGenderOptions.forEach(opt => {
+            opt.onclick = () => {
+                setupGenderOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                document.getElementById('setup-gender').value = opt.getAttribute('data-value');
+            };
+        });
+    }
+
     if (showRegister) {
         showRegister.onclick = () => {
             loginForm.classList.add('hidden');
@@ -2917,18 +2934,97 @@ async function handleGoogleCredentialResponse(response) {
         googleId: payload.sub
     });
 
-    if (result.success) {
-        state.user.loggedIn = true;
+    if (result && result.success) {
         state.user.email = result.user.email;
         state.user.name = result.user.name;
-        state.user.gender = result.user.gender || 'nam';
+        state.user.avatar = payload.picture || result.user.avatar || '';
 
-        ApiService.saveLocal();
-        localStorage.setItem('smoney_logged_in', 'true');
+        // Nếu là tài khoản mới (chưa có ID hoặc giới tính mặc định)
+        if (!result.user.username || !result.user.gender) {
+            const loginForm = document.getElementById('login-form');
+            if(loginForm) loginForm.classList.add('hidden');
+            const regForm = document.getElementById('register-form');
+            if(regForm) regForm.classList.add('hidden');
+            const forgotForm = document.getElementById('forgot-password-form');
+            if(forgotForm) forgotForm.classList.add('hidden');
+            const setupForm = document.getElementById('google-setup-form');
+            if(setupForm) setupForm.classList.remove('hidden');
 
-        hideAuthScreen();
-        unlockApp();
-        showToast("Chào mừng " + state.user.name + "!");
-        ApiService.syncFromCloud();
+            const setupName = document.getElementById('setup-name');
+            if(setupName) setupName.value = result.user.name || "";
+            const setupId = document.getElementById('setup-id');
+            if(setupId) setupId.value = (result.user.email || "").split('@')[0];
+            showToast("Gần xong rồi! Cho Heo biết thêm về bạn nha.");
+        } else {
+            finalizeLogin(result.user);
+        }
+    } else {
+        showToast("Đăng nhập thất bại, vui lòng thử lại!");
+    }
+}
+
+function finalizeLogin(userData) {
+    state.user.loggedIn = true;
+    state.user.email = userData.email;
+    state.user.name = userData.name;
+    state.user.gender = userData.gender || 'nam';
+    if(userData.username) state.user.username = userData.username;
+
+    ApiService.saveLocal();
+    localStorage.setItem('smoney_logged_in', 'true');
+
+    hideAuthScreen();
+    unlockApp();
+    showToast("Chào mừng " + state.user.name + "!");
+    ApiService.syncFromCloud();
+}
+
+
+async function handleSetupSave() {
+    const name = document.getElementById('setup-name').value.trim();
+    const id = document.getElementById('setup-id').value.trim();
+    const gender = document.getElementById('setup-gender').value;
+    const password = document.getElementById('setup-password').value;
+
+    if (!name || !id) {
+        showToast("Vui lòng điền tên và username!");
+        return;
+    }
+    if (id.length < 4 || id.includes(" ")) {
+        showToast("Username ít nhất 4 ký tự và không chứa khoảng trắng");
+        return;
+    }
+    if (!password || password.length < 6) {
+        showToast("Vui lòng nhập mật khẩu (ít nhất 6 ký tự)!");
+        return;
+    }
+
+    // Check account exists
+    const checkRes = await ApiService.call('checkAccount', { username: id });
+    if (checkRes.exists && checkRes.reason === 'username') {
+        showToast("Username đã tồn tại, vui lòng chọn tên khác");
+        return;
+    }
+
+    const hashed = await hashPassword(password);
+
+    showToast("Đang lưu thông tin...");
+    const res = await ApiService.call('updateProfile', {
+        email: state.user.email,
+        username: id,
+        name: name,
+        gender: gender,
+        password_hash: hashed
+    });
+
+    if (res.success) {
+        finalizeLogin({
+            email: state.user.email,
+            username: id,
+            name: name,
+            gender: gender
+        });
+    } else {
+        showToast("Lỗi: " + (res.error || "Không thể lưu thông tin"));
     }
 }

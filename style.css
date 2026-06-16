@@ -244,6 +244,16 @@ body {
     box-shadow: 0 0 15px rgba(255, 182, 204, 0.4);
 }
 
+/* Remove default blue/yellow autofill background on Chrome/Edge */
+.win-input-group input:-webkit-autofill,
+.win-input-group input:-webkit-autofill:hover,
+.win-input-group input:-webkit-autofill:focus,
+.win-input-group input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    -webkit-text-fill-color: #333 !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 .win-input-group input:focus+label,
 .win-input-group input:not(:placeholder-shown)+label,
 .win-input-group select:focus+label,
@@ -330,7 +340,7 @@ body {
     color: #999;
     font-weight: 400;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .auth-form.hidden {
@@ -737,8 +747,7 @@ header h2 {
 
 /* Giao diện Bước 2 dùng khung hình mới khungnhap2.png */
 .modal-content.step-2-active {
-    background: url('assets/images/khungnhap2.png?v=2') no-repeat center !important;
-    background-size: contain !important;
+    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     max-width: 450px !important;
@@ -747,14 +756,32 @@ header h2 {
 }
 
 .modal-content.step-2-active::before {
-    display: none !important;
+    display: block !important;
+    background: url('assets/images/khungnhap2.png?v=2') no-repeat center !important;
+    background-size: contain !important;
+    filter: sepia(1) hue-rotate(var(--theme-hue-rotate, 285deg)) saturate(1.8) brightness(1.1);
 }
 
 .modal-content.step-2-active #modal-title {
-    color: var(--primary);
+    color: var(--primary-text) !important;
     margin-bottom: 10px;
     font-size: 24px;
     font-family: 'KoniBlack', sans-serif;
+}
+
+.modal-content.step-2-active #note-warning {
+    color: var(--primary-text) !important;
+}
+
+#note-input {
+    background: transparent !important;
+    color: var(--primary-text) !important;
+    border: none !important;
+    text-align: center;
+}
+
+#note-input::placeholder {
+    color: color-mix(in srgb, var(--primary-text) 60%, transparent) !important;
 }
 
 #amount-input {
@@ -870,12 +897,12 @@ header h1 {
     .method-btn span {
         display: none;
     }
-    
+
     .method-btn {
         padding: 10px 4px !important;
         justify-content: center;
     }
-    
+
     .method-btn i {
         width: 22px;
         height: 22px;
@@ -957,6 +984,11 @@ header h1 {
 }
 
 #transfer-modal .modal-content::before {
+    display: none !important;
+}
+
+#confirm-modal .modal-content::before,
+#change-name-modal .modal-content::before {
     display: none !important;
 }
 
@@ -1864,6 +1896,11 @@ body.web-layout .settings-item {
 /* ---------- Toast position (avoid sidebar) ---------- */
 body.web-layout .kute-toast {
     left: calc(50% + 120px);
+}
+
+body.web-layout:has(#auth-screen:not(.hidden)) .kute-toast,
+body.web-layout:has(#lock-screen:not(.hidden)) .kute-toast {
+    left: 50%;
 }
 
 /* ---------- Stats: Smaller cards on web ---------- */

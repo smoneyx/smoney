@@ -60,11 +60,11 @@ const ApiService = {
             const cloudData = result.data;
 
             // Update state
-            if (cloudData.transactions) state.transactions = cloudData.transactions;
-            if (cloudData.settings) state.settings = cloudData.settings;
-            if (cloudData.theme) state.theme = cloudData.theme;
-            if (cloudData.goals) state.goals = cloudData.goals;
-            if (cloudData.security) state.security = cloudData.security;
+            state.transactions = cloudData.transactions || [];
+            state.settings = cloudData.settings || { soundEnabled: true };
+            state.theme = cloudData.theme || { mode: 'global', global: '#ff8fb1', tabs: {} };
+            state.goals = cloudData.goals || { monthlyBudget: 0 };
+            state.security = cloudData.security || { enabled: false, type: 'pin', pin: '', pattern: '', biometricEnabled: false };
 
             // Save to local for offline use
             this.saveLocal();
@@ -74,13 +74,9 @@ const ApiService = {
     },
 
     saveLocal() {
-        localStorage.setItem('smoney_transactions', JSON.stringify(state.transactions));
-        localStorage.setItem('smoney_settings', JSON.stringify(state.settings));
-        localStorage.setItem('smoney_theme', JSON.stringify(state.theme));
-        localStorage.setItem('smoney_goals', JSON.stringify(state.goals));
-        localStorage.setItem('smoney_security', JSON.stringify(state.security));
         localStorage.setItem('smoney_user_name', state.user.name);
         localStorage.setItem('smoney_user_gender', state.user.gender);
         localStorage.setItem('smoney_user_email', state.user.email);
+        localStorage.setItem('smoney_user_avatar', state.user.avatar || '');
     }
 };
