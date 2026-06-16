@@ -977,7 +977,8 @@ header h1 {
     display: none !important;
 }
 
-#confirm-modal .modal-content::before {
+#confirm-modal .modal-content::before,
+#change-name-modal .modal-content::before {
     display: none !important;
 }
 

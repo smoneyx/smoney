@@ -19,6 +19,10 @@ function doPost(e) {
       result = handleSaveData(userId, payload);
     } else if (action === "loadData") {
       result = handleLoadData(userId);
+    } else if (action === "changeDisplayName") {
+      result = handleChangeDisplayName(userId, payload);
+    } else if (action === "checkAccount") {
+      result = handleCheckAccount(payload);
     }
 
     return ContentService.createTextOutput(JSON.stringify(result))
@@ -138,6 +142,27 @@ function handleRegister(payload) {
   return { success: true, message: "Đăng ký thành công!" };
 }
 
+// 3.5 Kiểm tra Username và Email trùng
+function handleCheckAccount(payload) {
+  var username = (payload.username || "").toString().trim();
+  var email = (payload.email || "").toString().trim();
+  
+  var sheet = getSheet("Users");
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    var rowUsername = (data[i][0] || "").toString().trim();
+    var rowEmail = (data[i][1] || "").toString().trim();
+    
+    if (username && rowUsername === username) {
+      return { success: true, exists: true, reason: "username" };
+    }
+    if (email && rowEmail === email) {
+      return { success: true, exists: true, reason: "email" };
+    }
+  }
+  return { success: true, exists: false };
+}
+
 // 4. QUÊN MẬT KHẨU / ĐỔI MẬT KHẨU
 function handleResetPassword(payload) {
   var otpSheet = getSheet("OTP");
@@ -207,6 +232,27 @@ function handleLoadData(userId) {
     }
   }
   return { success: true, data: null }; // Chưa có dữ liệu
+}
+
+// 7. Cập nhật hồ sơ
+function handleChangeDisplayName(email, payload) {
+  if (!email) return { success: false, error: "Thiếu thông tin người dùng" };
+  var newName = (payload.name || '').toString().trim();
+  if (!newName) return { success: false, error: "Tên hiển thị không được để trống" };
+
+  var inputEmail = email.toString().trim();
+  var sheet = getSheet("Users");
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    var rowEmail = (rows[i][1] || '').toString().trim();
+    if (rowEmail === inputEmail) {
+      var cell = sheet.getRange(i + 1, 4); // Cột 4 là Name (full_name)
+      cell.clearContent(); // Xóa ô cũ
+      cell.setValue(newName); // Điền tên mới
+      return { success: true, message: "Cập nhật tên thành công!" };
+    }
+  }
+  return { success: false, error: "Không tìm thấy người dùng: " + inputEmail };
 }
 
 // Xử lý request dạng GET đơn giản để kiểm tra link API

@@ -806,6 +806,51 @@ function setupEventListeners() {
             return;
         }
 
+        // Change Name Button
+        const changeNameBtn = e.target.closest('#change-name-btn');
+        if (changeNameBtn) {
+            const modal = document.getElementById('change-name-modal');
+            const input = document.getElementById('new-name-input');
+            if (modal && input) {
+                input.value = state.user.name || '';
+                modal.classList.remove('hidden');
+                setTimeout(() => input.focus(), 100);
+            }
+            return;
+        }
+
+        const cancelNameBtn = e.target.closest('#change-name-cancel');
+        if (cancelNameBtn) {
+            document.getElementById('change-name-modal').classList.add('hidden');
+            return;
+        }
+
+        const okNameBtn = e.target.closest('#change-name-ok');
+        if (okNameBtn) {
+            const modal = document.getElementById('change-name-modal');
+            const input = document.getElementById('new-name-input');
+            const newName = input.value;
+            
+            if (newName && newName.trim() !== "" && newName.trim() !== state.user.name) {
+                showToast("Đang cập nhật tên...");
+                modal.classList.add('hidden');
+                ApiService.call('changeDisplayName', { name: newName.trim() }).then(result => {
+                    if (result.success) {
+                        state.user.name = newName.trim();
+                        ApiService.saveLocal();
+                        ApiService.syncToCloud();
+                        showToast("Đổi tên thành công!");
+                        renderTab('settings');
+                    } else {
+                        showToast("Lỗi: " + (result.error || "Không thể cập nhật tên"));
+                    }
+                });
+            } else {
+                modal.classList.add('hidden');
+            }
+            return;
+        }
+
         // Sync Cloud button
         const syncBtn = e.target.closest('#sync-cloud-btn');
         if (syncBtn) {
@@ -1672,6 +1717,12 @@ function renderSettings(container) {
                 <i data-lucide="chevron-right" class="chevron"></i>
             </div>
             ` : ''}
+
+            <div class="settings-item" id="change-name-btn">
+                <div class="item-icon-pink"><i data-lucide="edit-2"></i></div>
+                <div class="item-text">Đổi tên hiển thị</div>
+                <i data-lucide="chevron-right" class="chevron"></i>
+            </div>
 
             <div class="settings-item theme-link">
                 <div class="item-icon-pink"><i data-lucide="palette"></i></div>
@@ -2570,6 +2621,16 @@ function setupAuthListeners() {
 
     if (showLogin) {
         showLogin.onclick = () => {
+            const regEmail = document.getElementById('reg-email').value.trim();
+            const regUsername = document.getElementById('reg-id').value.trim();
+            const fillValue = regEmail || regUsername; // Ưu tiên điền email
+            if (fillValue) {
+                const loginEmailInput = document.getElementById('login-email');
+                if (loginEmailInput) {
+                    loginEmailInput.value = fillValue;
+                    setTimeout(() => document.getElementById('login-password').focus(), 100);
+                }
+            }
             registerForm.classList.add('hidden');
             forgotForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
@@ -2617,6 +2678,42 @@ function setupAuthListeners() {
     const registerBtn = document.getElementById('register-btn');
     if (registerBtn) {
         registerBtn.onclick = handleRegister;
+    }
+
+    // Real-time username validation
+    const regIdInput = document.getElementById('reg-id');
+    if (regIdInput) {
+        let usernameTimer = null;
+        regIdInput.addEventListener('input', () => {
+            clearTimeout(usernameTimer);
+            const val = regIdInput.value.trim();
+            const errEl = document.getElementById('username-error');
+            const regBtn = document.getElementById('register-btn');
+            if (!val) {
+                if (errEl) errEl.textContent = '';
+                if (regBtn) regBtn.disabled = false;
+                regIdInput.style.borderColor = '';
+                return;
+            }
+            usernameTimer = setTimeout(async () => {
+                const result = await ApiService.call('checkAccount', { username: val });
+                if (result.success) {
+                    if (result.exists) {
+                        if (errEl) { errEl.textContent = 'Tài khoản tồn tại!'; errEl.style.color = '#ff4d4d'; }
+                        if (regBtn) { regBtn.disabled = true; regBtn.style.opacity = '0.5'; }
+                        regIdInput.style.borderColor = '#ff4d4d';
+                    } else {
+                        if (errEl) { errEl.textContent = ''; }
+                        if (regBtn) { regBtn.disabled = false; regBtn.style.opacity = '1'; }
+                        regIdInput.style.borderColor = '#4caf50';
+                    }
+                } else {
+                    if (errEl) { errEl.textContent = 'Lỗi kết nối Backend! (Chưa Deploy bản mới)'; errEl.style.color = '#ff9800'; }
+                    if (regBtn) { regBtn.disabled = false; regBtn.style.opacity = '1'; }
+                    regIdInput.style.borderColor = '#ff9800';
+                }
+            }, 500);
+        });
     }
 
     const verifyOtpBtn = document.getElementById('verify-otp-btn');
@@ -2770,6 +2867,20 @@ async function handleRegister() {
         showToast("Vui lòng điền đầy đủ thông tin!");
         return;
     }
+
+    showToast("Đang kiểm tra tài khoản...");
+    const checkResult = await ApiService.call('checkAccount', { username: username, email: email });
+    if (checkResult.success && checkResult.exists) {
+        if (checkResult.reason === 'username') {
+            showToast("Tên đăng nhập đã tồn tại!");
+            document.getElementById('reg-id').style.borderColor = '#ff4d4d';
+        } else {
+            showToast("Email này đã được đăng ký!");
+            document.getElementById('reg-email').style.borderColor = '#ff4d4d';
+        }
+        return;
+    }
+
     showToast("Đang gửi mã OTP...");
 
     // Gọi API để gửi OTP
