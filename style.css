@@ -753,25 +753,25 @@ header h2 {
 }
 
 .modal-content.step-2-active #modal-title {
-    color: white !important;
+    color: var(--primary-text) !important;
     margin-bottom: 10px;
     font-size: 24px;
     font-family: 'KoniBlack', sans-serif;
 }
 
 .modal-content.step-2-active #note-warning {
-    color: white !important;
+    color: var(--primary-text) !important;
 }
 
 #note-input {
     background: transparent !important;
-    color: white !important;
+    color: var(--primary-text) !important;
     border: none !important;
     text-align: center;
 }
 
 #note-input::placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: color-mix(in srgb, var(--primary-text) 60%, transparent) !important;
 }
 
 #amount-input {

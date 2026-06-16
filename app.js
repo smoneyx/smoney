@@ -199,6 +199,9 @@ function applyThemeColor(color) {
         document.documentElement.style.setProperty('--primary', `var(--theme-base)`);
     }
 
+    let textColor = luma > 150 ? '#5d5d5d' : '#ffffff';
+    document.documentElement.style.setProperty('--primary-text', textColor);
+
     document.documentElement.style.setProperty('--bg-color', `color-mix(in srgb, var(--primary) 10%, white)`);
     document.documentElement.style.setProperty('--secondary', `color-mix(in srgb, var(--primary) 60%, white)`);
     document.documentElement.style.setProperty('--accent', `color-mix(in srgb, var(--primary) 30%, white)`);
