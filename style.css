@@ -737,8 +737,7 @@ header h2 {
 
 /* Giao diện Bước 2 dùng khung hình mới khungnhap2.png */
 .modal-content.step-2-active {
-    background: url('assets/images/khungnhap2.png?v=2') no-repeat center !important;
-    background-size: contain !important;
+    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     max-width: 450px !important;
@@ -747,14 +746,32 @@ header h2 {
 }
 
 .modal-content.step-2-active::before {
-    display: none !important;
+    display: block !important;
+    background: url('assets/images/khungnhap2.png?v=2') no-repeat center !important;
+    background-size: contain !important;
+    filter: sepia(1) hue-rotate(var(--theme-hue-rotate, 285deg)) saturate(1.8) brightness(1.1);
 }
 
 .modal-content.step-2-active #modal-title {
-    color: var(--primary);
+    color: white !important;
     margin-bottom: 10px;
     font-size: 24px;
     font-family: 'KoniBlack', sans-serif;
+}
+
+.modal-content.step-2-active #note-warning {
+    color: white !important;
+}
+
+#note-input {
+    background: transparent !important;
+    color: white !important;
+    border: none !important;
+    text-align: center;
+}
+
+#note-input::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
 #amount-input {
@@ -957,6 +974,10 @@ header h1 {
 }
 
 #transfer-modal .modal-content::before {
+    display: none !important;
+}
+
+#confirm-modal .modal-content::before {
     display: none !important;
 }
 

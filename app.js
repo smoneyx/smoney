@@ -178,6 +178,21 @@ function applyThemeColor(color) {
     let b = (rgb >> 0) & 0xff;
     let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
+    let rf = r / 255, gf = g / 255, bf = b / 255;
+    let max = Math.max(rf, gf, bf), min = Math.min(rf, gf, bf);
+    let h = 0;
+    if (max != min) {
+        let d = max - min;
+        switch (max) {
+            case rf: h = (gf - bf) / d + (gf < bf ? 6 : 0); break;
+            case gf: h = (bf - rf) / d + 2; break;
+            case bf: h = (rf - gf) / d + 4; break;
+        }
+        h /= 6;
+    }
+    let hueRotate = Math.round(h * 360) - 40;
+    document.documentElement.style.setProperty('--theme-hue-rotate', hueRotate + 'deg');
+
     if (luma > 210) {
         document.documentElement.style.setProperty('--primary', `color-mix(in srgb, var(--theme-base) 75%, black)`);
     } else {
