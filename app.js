@@ -78,7 +78,7 @@ const state = {
             greeting: isMale ? 'chồng' : 'vợ',
             self: isMale ? 'Chồng' : 'Vợ',
             label: isMale ? 'chồng' : 'vợ',
-            spouse: isMale ? 'vợ' : 'chồng'
+            spouse: isMale ? 'chồng' : 'vợ'
         };
     },
     playSound(src) {
