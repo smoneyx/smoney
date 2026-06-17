@@ -221,6 +221,11 @@ function unlockApp() {
         }, 500); // Wait for transition
     }
 
+    const appContainer = document.getElementById('app');
+    if (appContainer) {
+        appContainer.classList.remove('hidden');
+    }
+
     if (unlockCallback) {
         let cb = unlockCallback;
         unlockCallback = null;
@@ -2511,7 +2516,7 @@ function renderThemeSettings(container) {
         }
         localStorage.setItem('smoney_theme', JSON.stringify(state.theme));
         showToast("Đã lưu chủ đề màu!");
-        applyTheme();
+        applyTheme(); ApiService.syncToCloud();
     };
 }
 
@@ -2701,7 +2706,7 @@ async function handleLogin() {
         showToast("Chào mừng quay trở lại, " + state.user.name + "!");
 
         // Initial sync
-        ApiService.syncFromCloud();
+        ApiService.syncFromCloud().then(() => { applyTheme(); });
     } else {
         showToast(result.error || "Đăng nhập thất bại!");
     }
@@ -2976,7 +2981,9 @@ function finalizeLogin(userData) {
     hideAuthScreen();
     unlockApp();
     showToast("Chào mừng " + state.user.name + "!");
-    ApiService.syncFromCloud();
+    ApiService.syncFromCloud().then(() => {
+        applyTheme();
+    });
 }
 
 

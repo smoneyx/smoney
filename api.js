@@ -78,5 +78,11 @@ const ApiService = {
         localStorage.setItem('smoney_user_gender', state.user.gender);
         localStorage.setItem('smoney_user_email', state.user.email);
         localStorage.setItem('smoney_user_avatar', state.user.avatar || '');
+        
+        localStorage.setItem('smoney_transactions', JSON.stringify(state.transactions || []));
+        localStorage.setItem('smoney_settings', JSON.stringify(state.settings || { soundEnabled: true }));
+        localStorage.setItem('smoney_theme', JSON.stringify(state.theme || { mode: 'global', global: '#fff9fb', tabs: {} }));
+        localStorage.setItem('smoney_goals', JSON.stringify(state.goals || { monthlyBudget: 0 }));
+        localStorage.setItem('smoney_security', JSON.stringify(state.security || { enabled: false, type: 'pin', pin: '', pattern: '', biometricEnabled: false }));
     }
 };
