@@ -74,11 +74,11 @@ const state = {
         const gender = (this.user && this.user.gender) ? this.user.gender : 'nam';
         const isMale = gender === 'nam';
         return {
-            pronoun: isMale ? 'Anh' : 'Em',
-            greeting: isMale ? 'anh' : 'em',
-            self: isMale ? 'Chồng' : 'Vợ',
-            label: isMale ? 'chồng' : 'vợ',
-            spouse: isMale ? 'chồng' : 'vợ'
+            pronoun: isMale ? 'Anh' : 'Chị',
+            greeting: isMale ? 'anh' : 'chị',
+            self: 'Mình',
+            label: 'bạn',
+            spouse: 'bạn'
         };
     },
     playSound(src) {
@@ -1043,14 +1043,14 @@ function renderHome(container) {
             <div class="stat-item">
                 <div class="stat-icon income"><i data-lucide="trending-up"></i></div>
                 <div class="stat-info">
-                    <span>Heo Ăn</span>
+                    <span>Tiền thu</span>
                     <p>+${totalIncome.toLocaleString()}</p>
                 </div>
             </div>
             <div class="stat-item">
                 <div class="stat-icon expense"><i data-lucide="trending-down"></i></div>
                 <div class="stat-info">
-                    <span>Heo Tiêu</span>
+                    <span>Tiền chi</span>
                     <p>-${totalExpense.toLocaleString()}</p>
                 </div>
             </div>
@@ -1095,12 +1095,12 @@ function renderTransaction(container) {
 
         <div class="hero-buttons">
             <button class="kute-btn income" id="btn-income">
-                <span>Heo Béo Lên (Thu)</span>
+                <span>Tiền Thu</span>
                 <div class="btn-bubble"><i data-lucide="plus"></i></div>
             </button>
             
             <button class="kute-btn expense" id="btn-expense">
-                <span>Heo Gầy Đi (Chi)</span>
+                <span>Tiền Chi</span>
                 <div class="btn-bubble"><i data-lucide="minus"></i></div>
             </button>
         </div>
@@ -1752,7 +1752,7 @@ function renderSecuritySettings(container) {
             <div class="security-header">
                 <div class="security-icon-large"><i data-lucide="shield-check"></i></div>
                 <h3>Khóa ứng dụng</h3>
-                <p>Giúp Heo bảo vệ bí mật của ${state.getTerms().greeting}</p>
+                <p>Giúp bảo vệ bí mật của ${state.getTerms().greeting}</p>
                 <div class="toggle-switch ${state.security.enabled ? 'active' : ''}" id="toggle-security">
                     <div class="toggle-dot"></div>
                 </div>
@@ -3010,7 +3010,7 @@ async function handleGoogleCredentialResponse(response) {
             if(setupName) setupName.value = result.user.name || "";
             const setupId = document.getElementById('setup-id');
             if(setupId) setupId.value = (result.user.email || "").split('@')[0];
-            showToast("Gần xong rồi! Cho Heo biết thêm về bạn nha.");
+            showToast("Gần xong rồi! Cho chúng tôi biết thêm về bạn nha.");
         } else {
             finalizeLogin(result.user);
         }
