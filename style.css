@@ -1349,12 +1349,12 @@ body.web-layout .home-history-title {
 }
 
 .logout-icon {
-    background: #fff2f2;
-    color: #ff5e5e;
+    background: var(--bg-color);
+    color: var(--primary);
 }
 
 .logout-text {
-    color: #ff5e5e;
+    color: var(--primary);
 }
 
 /* Toggle Switch Styles */

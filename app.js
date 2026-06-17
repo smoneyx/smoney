@@ -149,6 +149,9 @@ function initApp() {
                 if (success) {
                     console.log("Synced from cloud successfully");
                     applyTheme();
+                    if (typeof switchTab === 'function') {
+                        switchTab(state.currentTab || 'home');
+                    }
                 }
             });
 
@@ -2924,6 +2927,10 @@ function showConfirmModal() {
 function logoutUser() {
     state.user.loggedIn = false;
     localStorage.removeItem('smoney_logged_in');
+    localStorage.removeItem('smoney_current_user');
+    localStorage.removeItem('smoney_transactions');
+    localStorage.removeItem('smoney_goals');
+    localStorage.removeItem('smoney_settings');
     location.reload();
 }
 window.logoutUser = logoutUser;
@@ -3020,6 +3027,8 @@ async function handleGoogleCredentialResponse(response) {
 }
 
 function finalizeLogin(userData) {
+    // Clear old transactions to prevent flashing old data
+    state.transactions = [];
     state.user.loggedIn = true;
     state.user.email = userData.email;
     state.user.name = userData.name;
@@ -3032,8 +3041,17 @@ function finalizeLogin(userData) {
     hideAuthScreen();
     unlockApp();
     showToast("Chào mừng " + state.user.name + "!");
-    ApiService.syncFromCloud().then(() => {
+    ApiService.syncFromCloud().then((success) => {
         applyTheme();
+        if (success) {
+            if (typeof switchTab === 'function') {
+                switchTab(state.currentTab || 'home');
+            }
+        } else {
+            if (typeof showToast === 'function') {
+                showToast("Đã xảy ra lỗi khi tải dữ liệu. Vui lòng tải lại trang.");
+            }
+        }
     });
 }
 
