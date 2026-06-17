@@ -2681,6 +2681,17 @@ function setupAuthListeners() {
         registerBtn.onclick = handleRegister;
     }
 
+    // Tự động định dạng Username: viết liền, không dấu, chữ thường và số
+    const regIdInput = document.getElementById('reg-id');
+    if (regIdInput) {
+        regIdInput.addEventListener('input', function(e) {
+            let val = this.value.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // Xóa dấu tiếng Việt
+            val = val.toLowerCase(); // Chuyển thành chữ thường
+            val = val.replace(/[^a-z0-9]/g, ''); // Xóa khoảng trắng và ký tự đặc biệt, chỉ giữ a-z và 0-9
+            this.value = val;
+        });
+    }
+
     const verifyOtpBtn = document.getElementById('verify-otp-btn');
     if (verifyOtpBtn) {
         verifyOtpBtn.onclick = handleVerifyOTP;
@@ -2830,6 +2841,41 @@ async function handleRegister() {
         showToast("Vui lòng điền đầy đủ thông tin!");
         return;
     }
+    
+    // Check if username or email already exists before sending OTP
+    showToast("Đang kiểm tra thông tin...");
+    try {
+        const checkResult = await ApiService.call('checkAccount', { username, email });
+        if (checkResult.success && checkResult.exists) {
+            if (checkResult.reason === 'username' || checkResult.reason === 'email') {
+                const msg = checkResult.reason === 'username' 
+                    ? "Tài khoản này đã tồn tại! Chuyển sang đăng nhập..." 
+                    : "Email này đã được đăng ký! Chuyển sang đăng nhập...";
+                
+                showToast(msg);
+                
+                setTimeout(() => {
+                    const showLoginBtn = document.getElementById('show-login');
+                    if (showLoginBtn) showLoginBtn.click();
+                    
+                    const loginIdInput = document.getElementById('login-email');
+                    if (loginIdInput) {
+                        // Tự động điền email hoặc username đã trùng
+                        loginIdInput.value = checkResult.reason === 'email' ? email : username;
+                    }
+                    
+                    const loginPassInput = document.getElementById('login-password');
+                    if (loginPassInput) {
+                        loginPassInput.focus();
+                    }
+                }, 1500);
+            }
+            return; // Stop here, don't send OTP
+        }
+    } catch (err) {
+        console.error("Check account failed:", err);
+    }
+    
     showToast("Đang gửi mã OTP...");
 
     // Gọi API để gửi OTP
