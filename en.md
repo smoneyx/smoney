@@ -1,5 +1,4 @@
-﻿`javascript
-/**
+﻿/**
  * Smoney Backend - Phiên bản TỔNG HỢP (Hỗ trợ Quên mật khẩu OTP)
  */
 
@@ -271,5 +270,3 @@ function handleChangeDisplayName(email, payload) {
   }
   return { success: false, error: "Không tìm thấy người dùng: " + inputEmail };
 }
-
-`
