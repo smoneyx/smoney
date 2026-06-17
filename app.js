@@ -74,11 +74,11 @@ const state = {
         const gender = (this.user && this.user.gender) ? this.user.gender : 'nam';
         const isMale = gender === 'nam';
         return {
-            pronoun: isMale ? 'Anh' : 'Chị',
-            greeting: isMale ? 'anh' : 'chị',
-            self: 'Mình',
-            label: 'bạn',
-            spouse: 'bạn'
+            pronoun: isMale ? 'Chồng' : 'Vợ',
+            greeting: isMale ? 'chồng' : 'vợ',
+            self: isMale ? 'Chồng' : 'Vợ',
+            label: isMale ? 'chồng' : 'vợ',
+            spouse: isMale ? 'vợ' : 'chồng'
         };
     },
     playSound(src) {
