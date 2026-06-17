@@ -1752,7 +1752,7 @@ function renderSecuritySettings(container) {
             <div class="security-header">
                 <div class="security-icon-large"><i data-lucide="shield-check"></i></div>
                 <h3>Khóa ứng dụng</h3>
-                <p>Giúp bảo vệ bí mật của ${state.getTerms().greeting}</p>
+                <p>Giúp Smoney bảo vệ bí mật của ${state.getTerms().greeting}</p>
                 <div class="toggle-switch ${state.security.enabled ? 'active' : ''}" id="toggle-security">
                     <div class="toggle-dot"></div>
                 </div>
@@ -3010,7 +3010,7 @@ async function handleGoogleCredentialResponse(response) {
             if(setupName) setupName.value = result.user.name || "";
             const setupId = document.getElementById('setup-id');
             if(setupId) setupId.value = (result.user.email || "").split('@')[0];
-            showToast("Gần xong rồi! Cho chúng tôi biết thêm về bạn nha.");
+            showToast("Gần xong rồi! Cho Smoney biết thêm về bạn nha.");
         } else {
             finalizeLogin(result.user);
         }
