@@ -72,7 +72,7 @@ const state = {
     },
     getTerms() {
         const gender = (this.user && this.user.gender) ? this.user.gender : 'nam';
-        const isMale = gender === 'nam';
+        const isMale = String(gender).toLowerCase() === 'nam' || String(gender).toLowerCase() === 'male';
         return {
             pronoun: isMale ? 'Chồng' : 'Vợ',
             greeting: isMale ? 'chồng' : 'vợ',
@@ -654,7 +654,7 @@ function setupEventListeners() {
         if (state.newTransaction.type === 'income') {
             noteInput.placeholder = `Ở đâu có dạ ${terms.spouse}?`;
             // Phát âm thanh nếu là nam (delay 1s)
-            if (state.user.gender === 'nam') {
+            if (String(state.user.gender).toLowerCase() === 'nam' || String(state.user.gender).toLowerCase() === 'male') {
                 setTimeout(() => {
                     state.playSound('assets/ado/odaucodachong.wav');
                 }, 1000);
@@ -2049,7 +2049,7 @@ function openModal(type) {
     state.newTransaction.type = type;
 
     // Phát âm thanh kute nếu là nam (delay 1s)
-    if (state.user.gender === 'nam') {
+    if (String(state.user.gender).toLowerCase() === 'nam' || String(state.user.gender).toLowerCase() === 'male') {
         setTimeout(() => {
             state.playSound('assets/ado/baonhieudachong.wav');
         }, 1000);
